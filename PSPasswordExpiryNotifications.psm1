@@ -1,12 +1,10 @@
 Import-Module ActiveDirectory
-Clear-Host
 
 $script:WriteParameters = @{
     ShowTime   = $true
     LogFile    = ""
     TimeFormat = "yyyy-MM-dd HH:mm:ss"
 }
-
 
 function Test-Key ($ConfigurationTable, $ConfigurationSection = "", $ConfigurationKey, $DisplayProgress = $false) {
     if ($ConfigurationTable -eq $null) { return $false }
@@ -316,7 +314,7 @@ function Set-EmailFormatting ($Template, $FormattingParameters, $ConfigurationPa
 
     }
 
-    if ($ConfigurationParameters.DisplayTemplateHTML -eq $true) { Display-HTML($Body) }
+    if ($ConfigurationParameters.DisplayTemplateHTML -eq $true) { Get-HTML($Body) }
     return $Body
 }
 function Set-EmailBody($TableData, $TableWelcomeMessage) {
@@ -348,7 +346,7 @@ function Set-EmailBodyTableReplacement($Body, $TableName, $TableData) {
 }
 
 
-function Display-HTML($text) {
+function Get-HTML($text) {
     $text = $text.Split("`r")
     foreach ($t in $text) {
         Write-Host $t
@@ -372,7 +370,7 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
     $Today = get-date
     $Users = Find-AllUsers | Sort-Object DateExpiry
 
-    $UsersWithoutEmail = $Users | Where-Object { $_.EmailAddress -eq $null }
+    #$UsersWithoutEmail = $Users | Where-Object { $_.EmailAddress -eq $null }
     $UsersWithEmail = $Users | Where-Object { $_.EmailAddress -ne $null }
     $UsersExpired = $Users | Where-Object { $_.DateExpiry -lt $Today }
 
@@ -468,7 +466,7 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
                 $TemporaryBody = Set-EmailBodyTableReplacement -Body $TemporaryBody -TableName 'ManagerUsersTable' -TableData $UsersNotifiedManagers
                 $TemporaryBody = Set-EmailReplacements -Replacement $TemporaryBody -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day ''
 
-                if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Display-HTML -text $TemporaryBody }
+                if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Get-HTML -text $TemporaryBody }
                 if ($ConfigurationParameters.RemindersSendToManager.SendToDefaultEmail -eq $false) {
                     Write-Color @WriteParameters -Text "[i] Sending email to managers email ", "$($m)", " ..."  -Color White, Green -NoNewLine
                     $EmailSent = Send-Email -EmailParameters $EmailParameters -Body $TemporaryBody -ReportOptions $DisplayParameters -Subject $EmailSubject -To $m
@@ -549,7 +547,7 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Users are already expired' -Color White, Yellow
             $EmailBody += Set-EmailBody -TableData $UsersExpired -TableWelcomeMessage "Following users are already expired (and still enabled...)"
         }
-        if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Display-HTML -text $EmailBody }
+        if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Get-HTML -text $EmailBody }
 
         if ($ConfigurationParameters.RemindersSendToAdmins.RemindersDisplayOnly -eq $true) {
             Write-Color @WriteParameters -Text "[i] Pretending to send email to admins email ", "$($ConfigurationParameters.RemindersSendToAdmins.AdminsEmail) ", "...", 'Success' -Color White, Yellow, White, Green
@@ -575,9 +573,9 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
 
 function Get-HashMaxValue($hashTable, [switch] $Lowest) {
     if ($Lowest) {
-        return ($hashTable.GetEnumerator() | sort value -Descending | select -Last 1).Value
+        return ($hashTable.GetEnumerator() | Sort-Object value -Descending | Select-Object -Last 1).Value
     } else {
-        return ($hashTable.GetEnumerator() | sort value -Descending | select -First 1).Value
+        return ($hashTable.GetEnumerator() | Sort-Object value -Descending | Select-Object -First 1).Value
     }
 }
 
