@@ -277,7 +277,6 @@ function Set-EmailFormatting ($Template, $FormattingParameters, $ConfigurationPa
         $Body += "<br>$t"
     }
     Write-Color -Text "Done" -Color "Green"
-
     foreach ($style in $FormattingParameters.Styles.GetEnumerator()) {
         foreach ($value in $style.Value) {
             if ($value -eq "") { continue }
@@ -285,7 +284,6 @@ function Set-EmailFormatting ($Template, $FormattingParameters, $ConfigurationPa
             $Body = $Body.Replace($value, "<$($style.Name)>$value</$($style.Name)>")
             Write-Color -Text "Done" -Color "Green"
         }
-
     }
 
     foreach ($color in $FormattingParameters.Colors.GetEnumerator()) {
@@ -295,17 +293,11 @@ function Set-EmailFormatting ($Template, $FormattingParameters, $ConfigurationPa
             $Body = $Body.Replace($value, "<span style=color:$($color.Name)>$value</span>")
             Write-Color -Text "Done" -Color "Green"
         }
-
     }
     foreach ($links in $FormattingParameters.Links.GetEnumerator()) {
-
-        #write-host $links.Key
         foreach ($link in $links.Value) {
-
             #write-host $link.Text
             #write-host $link.Link
-
-            #
             if ($link.Link -like "*@*") {
                 Write-Color @WriteParameters -Text "[i] Preparing template ", "adding", " EMAIL ", "Links for", " $($links.Key)..." -Color White, Yellow, White, White, Yellow, White -NoNewLine
                 $Body = $Body -replace "<<$($links.Key)>>", "<span style=color:$($link.Color)><a href='mailto:$($link.Link)?subject=$($Link.Subject)'>$($Link.Text)</a></span>"
@@ -314,10 +306,6 @@ function Set-EmailFormatting ($Template, $FormattingParameters, $ConfigurationPa
                 $Body = $Body -replace "<<$($links.Key)>>", "<span style=color:$($link.Color)><a href='$($link.Link)'>$($Link.Text)</a></span>"
             }
             Write-Color -Text "Done" -Color "Green"
-
-            #foreach ($l in $link.Value) {
-            #    $l.Value
-            #}
         }
 
     }
@@ -362,7 +350,11 @@ function Get-HTML($text) {
 
 function Find-AllUsers () {
     $users = Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False -and PasswordLastSet -gt 0 } -Properties Manager, DisplayName, GivenName, Surname, SamAccountName, EmailAddress, msDS-UserPasswordExpiryTimeComputed, PasswordExpired, PasswordLastSet, PasswordNotRequired
-    $users = $users | Select-Object UserPrincipalName, SamAccountName, DisplayName, GivenName, Surname, @{Name = "Manager"; Expression = { (Get-ADUser $_.Manager).Name }}, @{Name = "ManagerEmail"; Expression = { (Get-ADUser -Properties Mail $_.Manager).Mail  }}, EmailAddress, PasswordExpired, PasswordLastSet, PasswordNotRequired, @{Name = "DateExpiry"; Expression = { ([datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")) }}, @{Name = "DaysToExpire"; Expression = { (NEW-TIMESPAN –Start (GET-DATE) -End ([datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed"))).Days }}
+    $users = $users | Select-Object UserPrincipalName, SamAccountName, DisplayName, GivenName, Surname, EmailAddress, PasswordExpired, PasswordLastSet, PasswordNotRequired,
+    @{Name = "Manager"; Expression = { (Get-ADUser $_.Manager).Name }},
+    @{Name = "ManagerEmail"; Expression = { (Get-ADUser -Properties Mail $_.Manager).Mail  }},
+    @{Name = "DateExpiry"; Expression = { ([datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")) }},
+    @{Name = "DaysToExpire"; Expression = { (NEW-TIMESPAN -Start (GET-DATE) -End ([datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed"))).Days }}
     return $users
 }
 
