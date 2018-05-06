@@ -53,6 +53,14 @@ Function Get-ModulesAvailability ([string]$Name) {
     } else { return $true } #module already loaded
 }
 
+function Get-HashMaxValue($hashTable, [switch] $Lowest) {
+    if ($Lowest) {
+        return ($hashTable.GetEnumerator() | Sort-Object value -Descending | Select-Object -Last 1).Value
+    } else {
+        return ($hashTable.GetEnumerator() | Sort-Object value -Descending | Select-Object -First 1).Value
+    }
+}
+
 function Send-Email ([hashtable] $EmailParameters, [string] $Body = "", $Attachment = $null, [string] $Subject = "", $To = "") {
     #     $SendMail = Send-Email -EmailParameters $EmailParameters -Body $EmailBody -Attachment $Reports -Subject $TemporarySubject
     #  Preparing the Email properties
@@ -345,15 +353,12 @@ function Set-EmailBodyTableReplacement($Body, $TableName, $TableData) {
     return $Body
 }
 
-
 function Get-HTML($text) {
     $text = $text.Split("`r")
     foreach ($t in $text) {
         Write-Host $t
     }
 }
-
-
 
 function Find-AllUsers () {
     $users = Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False -and PasswordLastSet -gt 0 } -Properties Manager, DisplayName, GivenName, Surname, SamAccountName, EmailAddress, msDS-UserPasswordExpiryTimeComputed, PasswordExpired, PasswordLastSet, PasswordNotRequired
@@ -365,7 +370,6 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
     $time = [System.Diagnostics.Stopwatch]::StartNew() # Timer Start
     Test-Prerequisits
     $WriteParameters = $ConfigurationParameters.DisplayConsole
-
 
     $Today = get-date
     $Users = Find-AllUsers | Sort-Object DateExpiry
@@ -567,16 +571,6 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
 
     }
     #endregion Send Emails to Admins
-
-
-}
-
-function Get-HashMaxValue($hashTable, [switch] $Lowest) {
-    if ($Lowest) {
-        return ($hashTable.GetEnumerator() | Sort-Object value -Descending | Select-Object -Last 1).Value
-    } else {
-        return ($hashTable.GetEnumerator() | Sort-Object value -Descending | Select-Object -First 1).Value
-    }
 }
 
 Export-ModuleMember -function 'Start-PasswordExpiryCheck'
