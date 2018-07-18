@@ -7,12 +7,11 @@
 #
 
 @{
-
     # Script module or binary module file associated with this manifest.
     RootModule        = 'PSPasswordExpiryNotifications.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.5'
+    ModuleVersion     = '0.6'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -87,8 +86,7 @@
     # ModuleList = @()
 
     # List of all files packaged with this module
-    FileList          = 'PSPasswordExpiryNotifications.psm1',
-    'PSPasswordExpiryNotifications.psd1'
+    #FileList          = @('PSPasswordExpiryNotifications.psm1',    'PSPasswordExpiryNotifications.psd1')
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData       = @{
@@ -115,7 +113,7 @@
     } # End of PrivateData hashtable
 
     # HelpInfo URI of this module
-    HelpInfoURI       = 'https://github.com/EvotecIT/PSPasswordExpiryNotifications'
+    #HelpInfoURI       = 'https://github.com/EvotecIT/PSPasswordExpiryNotifications'
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
