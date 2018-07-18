@@ -3,9 +3,17 @@ Following PowerShell Module provides different approach to scheduling password n
 
 ###### Links:
 [Short description for this project at (screenshots and all)](https://evotec.xyz/just-different-approach-to-active-directory-password-notifications/)
-
-Full Description (and a know-how) for this project at: https://evotec.xyz/hub/scripts/pspasswordexpirynotifications-powershell-module/
+[Full Description (and a know-how) for this project](https://evotec.xyz/hub/scripts/pspasswordexpirynotifications-powershell-module/)
 
 ###### Updates:
 - 0.6 - Removed "hidden" accounts responsible for Trusts from report, added count of users to report details
 - 0.5 - Initial Release
+
+###### Sample user report
+![image](https://evotec.xyz/wp-content/uploads/2018/05/img_5b05821cbc2f6.png)
+
+###### Sample manager report
+![image](https://evotec.xyz/wp-content/uploads/2018/05/img_5b05816f62291.png)
+
+###### Sample admin report
+![image](https://evotec.xyz/wp-content/uploads/2018/05/img_5b05807017c06.png)
