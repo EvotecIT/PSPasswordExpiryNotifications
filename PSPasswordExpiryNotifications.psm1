@@ -29,15 +29,13 @@ function Test-Key ($ConfigurationTable, $ConfigurationSection = "", $Configurati
 function Test-Prerequisits() {
     try {
         $TestActiveDirectory = get-addomain
-        $AdIsAvailable = $true
     } catch {
         if ($_.Exception -match "Unable to find a default server with Active Directory Web Services running.") {
             Write-Color @script:WriteParameters "[-] ", "Active Directory", " not found. Please run this script with access to ", "Domain Controllers." -Color White, Red, White, Red
         }
         Write-Color @script:WriteParameters "[-] ", "Error: $($_.Exception.Message)" -Color White, Red
-        $AdIsAvailable = $false
+        Exit
     }
-    if ($AdIsAvailable -eq $false) { exit }
 }
 
 Function Get-ModulesAvailability ([string]$Name) {
@@ -155,6 +153,8 @@ function Set-EmailHead($FormattingOptions) {
             border-style: solid;
             border-color: black;
             border-collapse: collapse;
+            font-family: $($FormattingOptions.FontTableDataFamily);
+            font-size: $($FormattingOptions.FontTableDataSize);
         }
 
         TH {
@@ -166,6 +166,10 @@ function Set-EmailHead($FormattingOptions) {
             color: white;
             font-family: $($FormattingOptions.FontTableHeadingFamily);
             font-size: $($FormattingOptions.FontTableHeadingSize);
+        }
+        TR {
+            font-family: $($FormattingOptions.FontTableDataFamily);
+            font-size: $($FormattingOptions.FontTableDataSize);
         }
 
         TD {
