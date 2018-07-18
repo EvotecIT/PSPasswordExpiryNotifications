@@ -202,7 +202,15 @@ function Set-EmailHead($FormattingOptions) {
     }
     return $Head
 }
-function Set-EmailReportDetails($FormattingOptions, $ReportOptions, $TimeToGenerate) {
+function Set-EmailReportDetails {
+    param(
+        $FormattingOptions,
+        $ReportOptions,
+        $TimeToGenerate,
+        [int] $CountUsersImminent,
+        [int] $CountUsersCountdownStarted,
+        [int] $CountUsersAlreadyExpired
+    )
     $DateReport = get-date
     # HTML Report settings
     $Report = @"
@@ -213,7 +221,12 @@ function Set-EmailReportDetails($FormattingOptions, $ReportOptions, $TimeToGener
             <br>
             <strong>Account Executing Report :</strong> $env:userdomain\$($env:username.toupper()) on $($env:ComputerName.toUpper())
             <br>
-            <ul>
+            <strong>Users expiring countdown started: </strong> $CountUsersCountdownStarted
+            <br>
+            <strong>Users expiring soon: </strong> $CountUsersImminent
+            <br>
+            <strong>Users already expired count: </strong> $CountUsersAlreadyExpired
+            <br>
         </p>
 "@
     foreach ($ip in $ReportOptions.MonitoredIps.Values) {
@@ -528,7 +541,12 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
 
         $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
         $EmailBody += Set-EmailReportBrading -FormattingOptions $FormattingParameters
-        $EmailBody += Set-EmailReportDetails -FormattingOptions $FormattingParameters -ReportOptions $ReportOptions -TimeToGenerate $Time.Elapsed
+        $EmailBody += Set-EmailReportDetails -FormattingOptions $FormattingParameters `
+            -ReportOptions $ReportOptions `
+            -TimeToGenerate $Time.Elapsed `
+            -CountUsersCountdownStarted $($ExpiringCountdownStarted.Count) `
+            -CountUsersImminent $($ExpiringIminent.Count) `
+            -CountUsersAlreadyExpired $($UsersExpired.Count)
         $time.Stop()
 
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludePasswordNotificationsSent.Enabled -eq $true) {
