@@ -11,7 +11,7 @@
     RootModule        = 'PSPasswordExpiryNotifications.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.6'
+    ModuleVersion     = '0.7'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -50,7 +50,7 @@
     # ProcessorArchitecture = ''
 
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules   = 'PSWriteColor'
+    RequiredModules   = 'PSWriteColor', 'PSSharedGoods'
 
     # Assemblies that must be loaded prior to importing this module
     # RequiredAssemblies = @()
