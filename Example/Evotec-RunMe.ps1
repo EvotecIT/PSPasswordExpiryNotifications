@@ -25,6 +25,7 @@ $FormattingParameters = @{
         Width = "200"
         Height = ""
         Link = "https://evotec.xyz"
+        Inline = $false
     }
 
     FontFamily = "Calibri Light"
