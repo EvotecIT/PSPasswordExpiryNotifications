@@ -12,7 +12,7 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
 
     $UsersNotified = @()
     $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
-    $EmailBody += Set-EmailReportBrading -FormattingOptions $FormattingParameters
+    $EmailBody += Set-EmailReportBranding -FormattingOptions $FormattingParameters
     $EmailBody += Set-EmailFormatting -Template $FormattingParameters.Template -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters
 
     #region Send Emails to Users
@@ -67,7 +67,7 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
         # preparing email
         $EmailSubject = $ConfigurationParameters.RemindersSendToManager.ManagersEmailSubject
         $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
-        $EmailBody += Set-EmailReportBrading -FormattingOptions $FormattingParameters
+        $EmailBody += Set-EmailReportBranding -FormattingOptions $FormattingParameters
         $EmailBody += Set-EmailFormatting -Template $FormattingParameters.TemplateForManagers -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters
 
         # preparing manager lists
@@ -163,7 +163,7 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
 
 
         $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
-        $EmailBody += Set-EmailReportBrading -FormattingOptions $FormattingParameters
+        $EmailBody += Set-EmailReportBranding -FormattingOptions $FormattingParameters
         $EmailBody += Set-EmailReportDetails -FormattingOptions $FormattingParameters `
             -ReportOptions $ReportOptions `
             -TimeToGenerate $Time.Elapsed `
@@ -194,11 +194,14 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
             Write-Color @WriteParameters -Text "[i] Pretending to send email to admins email ", "$($ConfigurationParameters.RemindersSendToAdmins.AdminsEmail) ", "...", 'Success' -Color White, Yellow, White, Green
         } else {
             Write-Color @WriteParameters -Text "[i] Sending email to administrators on email address ", "$($ConfigurationParameters.RemindersSendToAdmins.AdminsEmail) ", "..." -Color White, Yellow, White -NoNewLine
-            $EmailSent = Send-Email -EmailParameters $EmailParameters -Body $EmailBody -ReportOptions $DisplayParameters -Subject $ConfigurationParameters.RemindersSendToAdmins.AdminsEmailSubject -To $ConfigurationParameters.RemindersSendToAdmins.AdminsEmail
+            $EmailSent = Send-Email -EmailParameters $EmailParameters `
+                -Body $EmailBody `
+                -Subject $ConfigurationParameters.RemindersSendToAdmins.AdminsEmailSubject `
+                -To $ConfigurationParameters.RemindersSendToAdmins.AdminsEmail
             if ($EmailSent.Status -eq $true) {
                 Write-Color -Text "Done" -Color "Green"
             } else {
-                Write-Color -Text "Failed!" -Color "Red"
+                Write-Color -Text "Failed! Error: $($EmailSent.Error)" -Color "Red"
             }
         }
         Write-Color @WriteParameters '[i] Ending processing ', 'Administrators', ' section' -Color White, Yellow, White
