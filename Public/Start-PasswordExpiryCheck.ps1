@@ -174,19 +174,27 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
 
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludePasswordNotificationsSent.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Password Notifcations Sent' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $UsersNotified -TableWelcomeMessage "Following users had their password notifications sent"
+            $EmailBody += Set-EmailBody -TableData $UsersNotified `
+                -TableMessageWelcome "Following users had their password notifications sent" `
+                -TableMessageNoData 'No users required nofifications.'
         }
         if ( $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Users expiring imminent' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $ExpiringIminent -TableWelcomeMessage "Following users expiring imminent (Less than $DayLowest day(s)"
+            $EmailBody += Set-EmailBody -TableData $ExpiringIminent `
+                -TableMessageWelcome "Following users expiring imminent (Less than $DayLowest day(s)" `
+                -TableMessageNoData 'No users expiring.'
         }
         if (  $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Expiring Couintdown Started' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $ExpiringCountdownStarted -TableWelcomeMessage "Following users expiring countdown started (Less than $DayHighest day(s))"
+            $EmailBody += Set-EmailBody -TableData $ExpiringCountdownStarted `
+                -TableMessageWelcome "Following users expiring countdown started (Less than $DayHighest day(s))" `
+                -TableMessageNoData 'There were no users that had their coundown started.'
         }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpired.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Users are already expired' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $UsersExpired -TableWelcomeMessage "Following users are already expired (and still enabled...)"
+            $EmailBody += Set-EmailBody -TableData $UsersExpired `
+                -TableMessageWelcome "Following users are already expired (and still enabled...)" `
+                -TableMessageNoData "No users that are expired and enabled."
         }
         if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Get-HTML -text $EmailBody }
 

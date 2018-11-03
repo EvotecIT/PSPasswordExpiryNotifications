@@ -1,4 +1,7 @@
-function Test-Prerequisits() {
+function Test-Prerequisits {
+    param(
+
+    )
     try {
         $TestActiveDirectory = get-addomain
     } catch {
