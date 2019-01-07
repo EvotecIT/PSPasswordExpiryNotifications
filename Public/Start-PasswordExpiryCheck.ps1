@@ -1,4 +1,9 @@
-Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $FormattingParameters, [hashtable] $ConfigurationParameters) {
+Function Start-PasswordExpiryCheck {
+    param (
+        [hashtable] $EmailParameters,
+        [hashtable] $FormattingParameters,
+        [hashtable] $ConfigurationParameters
+    )
     $time = [System.Diagnostics.Stopwatch]::StartNew() # Timer Start
     Test-Prerequisits
     $WriteParameters = $ConfigurationParameters.DisplayConsole
@@ -36,10 +41,16 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
                     } else {
                         if ($ConfigurationParameters.RemindersSendToUsers.SendToDefaultEmail -eq $false) {
                             Write-Color @WriteParameters -Text "[i] Sending email to ", "$($u.EmailAddress)", " ..."  -Color White, Green -NoNewLine
-                            $EmailSent = Send-Email -EmailParameters $EmailParameters -Body $TemporaryBody -ReportOptions $DisplayParameters -Subject $EmailSubject -To $u.EmailAddress
+                            $EmailSent = Send-Email `
+                                -EmailParameters $EmailParameters `
+                                -Body $TemporaryBody `
+                                -Subject $EmailSubject -To $u.EmailAddress #-WhatIf
                         } else {
                             Write-Color @WriteParameters -Text "[i] Sending email to users is disabled. Sending email to default value: ", "$($EmailParameters.EmailTo) ", "..." -Color White, Yellow, White -NoNewLine
-                            $EmailSent = Send-Email -EmailParameters $EmailParameters -Body $TemporaryBody -ReportOptions $DisplayParameters -Subject $EmailSubject
+                            $EmailSent = Send-Email `
+                                -EmailParameters $EmailParameters `
+                                -Body $TemporaryBody `
+                                -Subject $EmailSubject #-WhatIf
                         }
                         if ($EmailSent.Status -eq $true) {
                             Write-Color -Text "Done" -Color "Green"
@@ -105,21 +116,24 @@ Function Start-PasswordExpiryCheck ([hashtable] $EmailParameters, [hashtable] $F
                 if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Get-HTML -text $TemporaryBody }
                 if ($ConfigurationParameters.RemindersSendToManager.SendToDefaultEmail -eq $false) {
                     Write-Color @WriteParameters -Text "[i] Sending email to managers email ", "$($m)", " ..."  -Color White, Green -NoNewLine
-                    $EmailSent = Send-Email -EmailParameters $EmailParameters -Body $TemporaryBody -ReportOptions $DisplayParameters -Subject $EmailSubject -To $m
+                    $EmailSent = Send-Email `
+                        -EmailParameters $EmailParameters `
+                        -Body $TemporaryBody `
+                        -Subject $EmailSubject `
+                        -To $m #-WhatIf
                 } else {
                     Write-Color @WriteParameters -Text "[i] Sending email to managers is disabled. Sending email to default value: ", "$($EmailParameters.EmailTo) ", "..." -Color White, Yellow, White -NoNewLine
-                    $EmailSent = Send-Email -EmailParameters $EmailParameters -Body $TemporaryBody -ReportOptions $DisplayParameters -Subject $EmailSubject
-                    if ($EmailSent.Status -eq $true) {
-                        Write-Color -Text "Done" -Color "Green"
-                    } else {
-                        Write-Color -Text "Failed!" -Color "Red"
-                    }
-
+                    $EmailSent = Send-Email `
+                        -EmailParameters $EmailParameters `
+                        -Body $TemporaryBody `
+                        -Subject $EmailSubject #-WhatIf
                 }
-
-
+                if ($EmailSent.Status -eq $true) {
+                    Write-Color -Text "Done" -Color "Green"
+                } else {
+                    Write-Color -Text "Failed!" -Color "Red"
+                }
             }
-
         }
         Write-Color @WriteParameters '[i] Ending processing ', 'Managers', ' section' -Color White, Yellow, White
     } else {
