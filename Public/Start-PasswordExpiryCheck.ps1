@@ -17,8 +17,11 @@ Function Start-PasswordExpiryCheck {
 
     $UsersNotified = @()
     $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
-    $EmailBody += Set-EmailReportBranding -FormattingOptions $FormattingParameters
-    $EmailBody += Set-EmailFormatting -Template $FormattingParameters.Template -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters
+    $EmailReportBranding = Set-EmailReportBranding -FormattingOptions $FormattingParameters
+    $EmailBody += Set-EmailFormatting -Template $FormattingParameters.Template `
+        -FormattingParameters $FormattingParameters `
+        -ConfigurationParameters $ConfigurationParameters `
+        -ReportBranding $EmailReportBranding
 
     #region Send Emails to Users
     if ($ConfigurationParameters.RemindersSendToUsers.Enable -eq $true) {
@@ -78,8 +81,11 @@ Function Start-PasswordExpiryCheck {
         # preparing email
         $EmailSubject = $ConfigurationParameters.RemindersSendToManager.ManagersEmailSubject
         $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
-        $EmailBody += Set-EmailReportBranding -FormattingOptions $FormattingParameters
-        $EmailBody += Set-EmailFormatting -Template $FormattingParameters.TemplateForManagers -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters
+        $EmailReportBranding = Set-EmailReportBranding -FormattingOptions $FormattingParameters
+        $EmailBody += Set-EmailFormatting -Template $FormattingParameters.TemplateForManagers `
+            -FormattingParameters $FormattingParameters `
+            -ConfigurationParameters $ConfigurationParameters `
+            -AddAfter $EmailReportBranding
 
         # preparing manager lists
         $Managers = @()
@@ -177,6 +183,7 @@ Function Start-PasswordExpiryCheck {
 
 
         $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
+        $EmailBody += "<body>"
         $EmailBody += Set-EmailReportBranding -FormattingOptions $FormattingParameters
         $EmailBody += Set-EmailReportDetails -FormattingOptions $FormattingParameters `
             -ReportOptions $ReportOptions `
@@ -210,6 +217,7 @@ Function Start-PasswordExpiryCheck {
                 -TableMessageWelcome "Following users are already expired (and still enabled...)" `
                 -TableMessageNoData "No users that are expired and enabled."
         }
+        $EmailBody += "</body>"
         if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Get-HTML -text $EmailBody }
 
         if ($ConfigurationParameters.RemindersSendToAdmins.RemindersDisplayOnly -eq $true) {
