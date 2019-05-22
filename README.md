@@ -1,3 +1,10 @@
+[![PowerShellGallery Version](https://img.shields.io/powershellgallery/v/PSPasswordExpiryNotifications.svg)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
+[![PowerShellGallery Preview Version](https://img.shields.io/powershellgallery/vpre/PSPasswordExpiryNotifications.svg?label=powershell%20gallery%20preview&colorB=yellow)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
+[![PowerShellGallery Platform](https://img.shields.io/powershellgallery/p/PSPasswordExpiryNotifications.svg)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
+![Top Language](https://img.shields.io/github/languages/top/evotecit/PSPasswordExpiryNotifications.svg)
+![Code](https://img.shields.io/github/languages/code-size/evotecit/PSPasswordExpiryNotifications.svg)
+[![PowerShellGallery Downloads](https://img.shields.io/powershellgallery/dt/PSPasswordExpiryNotifications.svg)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
+
 # PSPasswordExpiryNotifications - PowerShell module
 
 Following PowerShell Module provides different approach to scheduling password notifications for expiring Active Directory based accounts. While most of the scripts require knowledge on HTML... this one is just one config file and a bit of tingling around with texts. Whether this is good or bad it's up to you to decide. I do plan to add an option to use external HTML template if there will be requests for that.
@@ -7,7 +14,6 @@ Following PowerShell Module provides different approach to scheduling password n
 - [Full Description (and a know-how) for this project](https://evotec.xyz/hub/scripts/pspasswordexpirynotifications-powershell-module/)
 
 ### Updates:
-
 
 - 1.0 - 2019.05.22
     - New feature:
