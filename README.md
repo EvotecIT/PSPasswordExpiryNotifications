@@ -7,6 +7,11 @@ Following PowerShell Module provides different approach to scheduling password n
 - [Full Description (and a know-how) for this project](https://evotec.xyz/hub/scripts/pspasswordexpirynotifications-powershell-module/)
 
 ### Updates:
+
+
+- 1.0 - 2019.05.22
+    - New feature:
+      - Adds UseAdditionalField (for example 'extensionAttribute13') - the way it works now is that if you define additional attribute it takes precedence in sending emails. To understand it, imagine yourself a situation where two users exists - przemyslaw.klys@domain.com and adm.przemyslaw.klys@domain.com. One with mailbox, the other oen without or even with mailbox. You can put email in extensionAttribute13 przemyslaw.klys@domain.com which will cause an overwrite of default email for adm.przemyslaw.klys@domain.com which will allow sending notifications that otherwise wouldn't reach user or would be lost. This also works great for scenarios with Azure AD where having 2 emails with same address is not possible.
 - 0.7 - 2018.11.03
     - Small updates to email notification, ability to inline logo
 - 0.6
