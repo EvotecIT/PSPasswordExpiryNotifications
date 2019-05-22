@@ -1,7 +1,8 @@
 function Set-EmailReportDetails {
+    [CmdletBinding()]
     param(
-        $FormattingOptions,
-        $ReportOptions,
+        [System.Collections.IDictionary] $FormattingOptions,
+        [System.Collections.IDictionary] $ReportOptions,
         $TimeToGenerate,
         [int] $CountUsersImminent,
         [int] $CountUsersCountdownStarted,
@@ -9,7 +10,9 @@ function Set-EmailReportDetails {
     )
     $DateReport = get-date
     # HTML Report settings
-    $Report = @"
+    $Report = @(
+
+        @"
         <p>
             <strong>Report Time:</strong> $DateReport
             <br>
@@ -25,10 +28,11 @@ function Set-EmailReportDetails {
             <br>
         </p>
 "@
-    foreach ($ip in $ReportOptions.MonitoredIps.Values) {
-        $Report += "<li>ip:</strong> $ip</li>"
-    }
-    $Report += '</ul>'
-    $Report += '</p>'
+        foreach ($ip in $ReportOptions.MonitoredIps.Values) {
+            "<li>ip:</strong> $ip</li>"
+        }
+        '</ul>'
+        '</p>'
+    )
     return $Report
 }

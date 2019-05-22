@@ -1,4 +1,12 @@
-function Set-EmailReplacements($Replacement, $User, $EmailParameters, $FormattingParameters, $Day) {
+function Set-EmailReplacements {
+    [CmdletBinding()]
+    param(
+        $Replacement,
+        $User,
+        [System.Collections.IDictionary] $EmailParameters,
+        [System.Collections.IDictionary] $FormattingParameters,
+        $Day
+    )
 
     $Replacement = $Replacement -replace "<<DisplayName>>", $user.DisplayName
     $Replacement = $Replacement -replace "<<DateExpiry>>", $user.DateExpiry
