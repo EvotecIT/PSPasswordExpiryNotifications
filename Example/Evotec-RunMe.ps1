@@ -111,6 +111,7 @@ $ConfigurationParameters = @{
             Notification3 = 34
         }
         #UseAdditionalField   = 'extensionAttribute13'
+        #SendCountMaximum     = 3
     }
     RemindersSendToManager = @{
         Enable               = $true # doesn't processes this section at all if $false
@@ -120,11 +121,17 @@ $ConfigurationParameters = @{
         Reports              = @{
             IncludePasswordNotificationsSent = @{
                 Enabled          = $true
-                IncludeNames     = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
+                IncludeNames     = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
                 TextBeforeReport = '"Following users which you are listed as manager for have their passwords expiring soon:"'
 
             }
         }
+
+        # You can use limit scope
+        #LimitScope           = @{
+        #    Groups = 'RecursiveGoup-FGP-Check'
+        #}
+        # SendCountMaximum     = 3
     }
     RemindersSendToAdmins  = @{
         Enable               = $true # doesn't processes this section at all
@@ -134,19 +141,19 @@ $ConfigurationParameters = @{
         Reports              = @{
             IncludePasswordNotificationsSent = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
+                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
             }
             IncludeExpiringImminent          = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
+                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
             }
             IncludeExpiringCountdownStarted  = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
+                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
             }
             IncludeExpired                   = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
+                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
             }
         }
     }

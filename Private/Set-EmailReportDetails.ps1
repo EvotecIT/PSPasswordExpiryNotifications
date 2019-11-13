@@ -3,12 +3,12 @@ function Set-EmailReportDetails {
     param(
         [System.Collections.IDictionary] $FormattingOptions,
         [System.Collections.IDictionary] $ReportOptions,
-        $TimeToGenerate,
+        [timespan] $TimeToGenerate,
         [int] $CountUsersImminent,
         [int] $CountUsersCountdownStarted,
         [int] $CountUsersAlreadyExpired
     )
-    $DateReport = get-date
+    $DateReport = Get-Date
     # HTML Report settings
     $Report = @(
 

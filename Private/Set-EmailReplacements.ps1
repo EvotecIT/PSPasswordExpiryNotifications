@@ -1,11 +1,11 @@
 function Set-EmailReplacements {
     [CmdletBinding()]
     param(
-        $Replacement,
-        $User,
+        [string] $Replacement,
+        [PSCustomObject] $User,
         [System.Collections.IDictionary] $EmailParameters,
         [System.Collections.IDictionary] $FormattingParameters,
-        $Day
+        [System.Collections.DictionaryEntry] $Day
     )
 
     $Replacement = $Replacement -replace "<<DisplayName>>", $user.DisplayName
