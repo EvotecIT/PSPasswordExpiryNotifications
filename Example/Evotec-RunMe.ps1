@@ -73,6 +73,8 @@ $FormattingParameters = @{
 
 
     Template                = "
+    <<Image>>
+
     Hello <<DisplayName>>,
     Your password is due to expire in <<TimeToExpire>> days.
 
