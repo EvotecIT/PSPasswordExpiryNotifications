@@ -78,7 +78,7 @@ Function Start-PasswordExpiryCheck {
                         }
                         $u
                         if ($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum -eq $Count) {
-                            Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum) ", " has been reached. Skipping..." -Color White, Yellow, White -NoNewLine
+                            Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum) ", " has been reached. Skipping..." -Color White, Yellow, White
                             break
                         }
                     }
