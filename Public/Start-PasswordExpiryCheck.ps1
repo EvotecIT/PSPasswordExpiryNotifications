@@ -27,10 +27,14 @@ Function Start-PasswordExpiryCheck {
         -ConfigurationParameters $ConfigurationParameters -Image $Image
 
     $UsersNotified = @(
+        [bool] $TestingLimitReached = $false
         #region Send Emails to Users
         if ($ConfigurationParameters.RemindersSendToUsers.Enable -eq $true) {
             Write-Color @WriteParameters '[i] Starting processing ', 'Users', ' section' -Color White, Yellow, White
             foreach ($Day in $ConfigurationParameters.RemindersSendToUsers.Reminders.GetEnumerator()) {
+                if ($TestingLimitReached -eq $true) {
+                    break
+                }
                 $Date = (Get-Date).AddDays($Day.Value).Date
                 $Count = 0
                 foreach ($u in $UsersWithEmail) {
@@ -79,6 +83,7 @@ Function Start-PasswordExpiryCheck {
                         $u
                         if ($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum -eq $Count) {
                             Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum) ", " has been reached. Skipping..." -Color White, Yellow, White
+                            $TestingLimitReached = $true
                             break
                         }
                     }
