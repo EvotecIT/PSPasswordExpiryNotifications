@@ -1,19 +1,20 @@
 Import-Module .\PSPasswordExpiryNotifications.psd1 -Force
 
 $EmailParameters = @{
-    EmailFrom            = "monitoring@domain.pl"
-    EmailTo              = "przemyslaw.klys@domain.pl" # your default email field (IMPORTANT)
-    EmailCC              = ""
-    EmailBCC             = ""
-    EmailReplyTo         = "helpdesk@domain.pl" # email to use when users press Reply
-    EmailServer          = ""
-    EmailServerPassword  = ""
-    EmailServerPort      = "587"
-    EmailServerLogin     = ""
-    EmailServerEnableSSL = 1
-    EmailEncoding        = "Unicode"
-    EmailSubject         = "[Password Expiring] Your password will expire on <<DateExpiry>> (<<TimeToExpire>> days)"
-    EmailPriority        = "Low" # Normal, High
+    EmailFrom                  = "monitoring@domain.pl"
+    EmailTo                    = "przemyslaw.klys@domain.pl" # your default email field (IMPORTANT)
+    EmailCC                    = ""
+    EmailBCC                   = ""
+    EmailReplyTo               = "helpdesk@domain.pl" # email to use when users press Reply
+    EmailServer                = ""
+    EmailServerPassword        = ""
+    EmailServerPort            = "587"
+    EmailServerLogin           = ""
+    EmailServerEnableSSL       = 1
+    EmailEncoding              = "Unicode"
+    EmailSubject               = "[Password Expiring] Your password will expire on <<DateExpiry>> (<<TimeToExpire>> days)"
+    EmailPriority              = "Low" # Normal, High
+    EmailUseDefaultCredentials = $false
 }
 
 $FormattingParameters = @{

@@ -24,17 +24,17 @@ function Find-PasswordExpiryCheck {
     if (-not $CachedUsers) {
         $CachedUsers = [ordered] @{ }
     }
+    Write-Color @WriteParameters -Text "[i] Discovering forest information" -Color White, Yellow, White, Yellow, White, Yellow, White
     $Forest = Get-ADForest
 
     $Users = @(
         try {
 
             foreach ($Domain in $Forest.Domains) {
-                Write-Color @WriteParameters -Text "[i] Processing ", "$($Domain)", " for users in forest ", $Forest.Name -Color White, Yellow, White, Yellow, White, Yellow, White
-
+                Write-Color @WriteParameters -Text "[i] Discovering DC for domain ", "$($Domain)", " in forest ", $Forest.Name -Color White, Yellow, White, Yellow, White, Yellow, White
                 $Server = Get-ADDomainController -Discover -DomainName $Domain -ErrorAction Stop
                 #$Users = Get-ADUser -Server $Server -Filter { Enabled -eq $True -and PasswordNeverExpires -eq $False -and PasswordLastSet -gt 0 -and PasswordNotRequired -ne $True } -Properties $Properties -ErrorAction Stop
-
+                Write-Color @WriteParameters -Text "[i] Getting users from ", "$($Domain)", " using ", $Server -Color White, Yellow, White, Yellow, White, Yellow, White
                 # We query all users instead of using filter. Since we need manager field and manager data this way it should be faster (query once - get it all)
                 $DomainUsers = Get-ADUser -Server $Server -Filter '*' -Properties $Properties -ErrorAction Stop
                 foreach ($_ in $DomainUsers) {
@@ -51,26 +51,9 @@ function Find-PasswordExpiryCheck {
             Write-Color @WriteParameters '[e] Error: ', $ErrorMessage -Color White, Red
         }
     )
+    Write-Color @WriteParameters -Text "[i] Preparing all users for password expirations in forest ", $Forest.Name -Color White, Yellow, White, Yellow, White, Yellow, White
     $ProcessedUsers = foreach ($_ in $Users) {
-        <#
-        if ($LargeScope) {
-            # if large scope is used it means the domain has most likely a lot of users. This means it's inefficient to quetrry
-
-        } else {
-            if ($null -ne $_.Manager) {
-                $Manager = Get-ADUser $_.Manager -Properties Mail -Server $Server
-            } else {
-                $Manager = $null
-            }
-        }
-        #>
-
         $UserManager = $CachedUsers["$($_.Manager)"]
-
-
-        #$Manager = $UserManager.DisplayName
-
-
         if ($AdditionalProperties) {
             # fix trhis for a user
             $EmailTemp = $_.$AdditionalProperties
