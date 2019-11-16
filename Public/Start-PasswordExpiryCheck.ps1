@@ -162,7 +162,7 @@ Function Start-PasswordExpiryCheck {
                 $EmailSent.SentTo = 'N/A'
             } else {
                 $TemporaryBody = $EmailBody
-                $TemporaryBody = Set-EmailBodyTableReplacement -Body $TemporaryBody -TableName 'ManagerUsersTable' -TableData $UsersNotifiedManagers
+                $TemporaryBody = Set-EmailBodyReplacementTable -Body $TemporaryBody -TableName 'ManagerUsersTable' -TableData $UsersNotifiedManagers
                 $TemporaryBody = Set-EmailReplacements -Replacement $TemporaryBody -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters #-Day ''
 
                 if ($ConfigurationParameters.Debug.DisplayTemplateHTML -eq $true) { Get-HTML -text $TemporaryBody }
