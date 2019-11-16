@@ -31,64 +31,71 @@ Function Start-PasswordExpiryCheck {
         #region Send Emails to Users
         if ($ConfigurationParameters.RemindersSendToUsers.Enable -eq $true) {
             Write-Color @WriteParameters '[i] Starting processing ', 'Users', ' section' -Color White, Yellow, White
-            foreach ($Day in $ConfigurationParameters.RemindersSendToUsers.Reminders.GetEnumerator()) {
+
+            if ($ConfigurationParameters.RemindersSendToUsers.Reminders -is [System.Collections.IDictionary]) {
+                [Array] $DaysToExpire = ($ConfigurationParameters.RemindersSendToUsers.Reminders).Values | Sort-Object -Unique
+            } else {
+                [Array] $DaysToExpire = $ConfigurationParameters.RemindersSendToUsers.Reminders | Sort-Object -Unique
+            }
+            #foreach ($Day in $ConfigurationParameters.RemindersSendToUsers.Reminders.GetEnumerator()) {
+
+            #$Date = (Get-Date).AddDays($Day.Value).Date
+            $Count = 0
+            foreach ($u in $UsersWithEmail) {
                 if ($TestingLimitReached -eq $true) {
                     break
                 }
-                $Date = (Get-Date).AddDays($Day.Value).Date
-                $Count = 0
-                foreach ($u in $UsersWithEmail) {
-                    if ($u.DateExpiry.Date -eq $Date) {
-                        $Count++
-                        if ($u.EmailAddress -like '*@*') {
-                            Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($Day.Value)", " days (", "$($u.DateExpiry)", ")."  -Color White, Yellow, White, Red, White, Red, White
-                            $TemporaryBody = Set-EmailReplacements -Replacement $EmailBody -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $Day
-                            $EmailSubject = Set-EmailReplacements -Replacement $EmailParameters.EmailSubject -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $Day
-                            $u.DaysToExpire = $Day.Value
+                if ($u.DaysToExpire -in $DaysToExpire) {
+                    $Count++
+                    if ($u.EmailAddress -like '*@*') {
+                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", ")."  -Color White, Yellow, White, Red, White, Red, White
+                        $TemporaryBody = Set-EmailReplacements -Replacement $EmailBody -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
+                        $EmailSubject = Set-EmailReplacements -Replacement $EmailParameters.EmailSubject -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
+                        #$u.DaysToExpire = $Day.Value
 
-                            if ($ConfigurationParameters.RemindersSendToUsers.RemindersDisplayOnly -eq $true) {
-                                Write-Color @WriteParameters -Text "[i] Pretending to send email to ", "$($u.EmailAddress)", " ...", "Success"  -Color White, Green, White, Green
-                                $EmailSent = [ordered] @{ }
-                                $EmailSent.Status = $false
-                                $EmailSent.SentTo = 'N/A'
-                            } else {
-                                $EmailSplat = @{
-                                    EmailParameters = $EmailParameters
-                                    Body            = $TemporaryBody
-                                    Subject         = $EmailSubject
-                                }
-                                if ($FormattingParameters.CompanyBranding.Inline) {
-                                    $EmailSplat.InlineAttachments = @{ logo = $FormattingParameters.CompanyBranding.Logo }
-                                }
-                                if ($ConfigurationParameters.RemindersSendToUsers.SendToDefaultEmail -eq $false) {
-                                    Write-Color @WriteParameters -Text "[i] Sending email to ", "$($u.EmailAddress)", " ..."  -Color White, Green -NoNewLine
-                                    $EmailSplat.To = $u.EmailAddress
-                                } else {
-                                    Write-Color @WriteParameters -Text "[i] Sending email to users is disabled. Sending email to default value: ", "$($EmailParameters.EmailTo) ", "..." -Color White, Yellow, White -NoNewLine
-                                }
-                                $EmailSent = Send-Email @EmailSplat
-                                if ($EmailSent.Status -eq $true) {
-                                    Write-Color -Text "Done" -Color "Green"
-                                } else {
-                                    Write-Color -Text "Failed!" -Color "Red"
-                                }
-                            }
-                            Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $EmailSent.Status
-                            Add-Member -InputObject $u -NotePropertyName "EmailSentTo" -NotePropertyValue $EmailSent.SentTo
+                        if ($ConfigurationParameters.RemindersSendToUsers.RemindersDisplayOnly -eq $true) {
+                            Write-Color @WriteParameters -Text "[i] Pretending to send email to ", "$($u.EmailAddress)", " ...", "Success"  -Color White, Green, White, Green
+                            $EmailSent = [ordered] @{ }
+                            $EmailSent.Status = $false
+                            $EmailSent.SentTo = 'N/A'
                         } else {
-                            Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $false
-                            Add-Member -InputObject $u -NotePropertyName "EmailSentTo" -NotePropertyValue 'Not available'
-                            Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($Day.Value)", " days (", "$($u.DateExpiry)", "). However user has no email address and will be skipped."  -Color White, Yellow, White, Red, White, Red, White
+                            $EmailSplat = @{
+                                EmailParameters = $EmailParameters
+                                Body            = $TemporaryBody
+                                Subject         = $EmailSubject
+                            }
+                            if ($FormattingParameters.CompanyBranding.Inline) {
+                                $EmailSplat.InlineAttachments = @{ logo = $FormattingParameters.CompanyBranding.Logo }
+                            }
+                            if ($ConfigurationParameters.RemindersSendToUsers.SendToDefaultEmail -eq $false) {
+                                Write-Color @WriteParameters -Text "[i] Sending email to ", "$($u.EmailAddress)", " ..."  -Color White, Green -NoNewLine
+                                $EmailSplat.To = $u.EmailAddress
+                            } else {
+                                Write-Color @WriteParameters -Text "[i] Sending email to users is disabled. Sending email to default value: ", "$($EmailParameters.EmailTo) ", "..." -Color White, Yellow, White -NoNewLine
+                            }
+                            $EmailSent = Send-Email @EmailSplat
+                            if ($EmailSent.Status -eq $true) {
+                                Write-Color -Text "Done" -Color "Green"
+                            } else {
+                                Write-Color -Text "Failed!" -Color "Red"
+                            }
                         }
-                        $u
-                        if ($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum -eq $Count) {
-                            Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum) ", "has been reached. Skipping..." -Color White, Yellow, White
-                            $TestingLimitReached = $true
-                            break
-                        }
+                        Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $EmailSent.Status
+                        Add-Member -InputObject $u -NotePropertyName "EmailSentTo" -NotePropertyValue $EmailSent.SentTo
+                    } else {
+                        Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $false
+                        Add-Member -InputObject $u -NotePropertyName "EmailSentTo" -NotePropertyValue 'Not available'
+                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", "). However user has no email address and will be skipped."  -Color White, Yellow, White, Red, White, Red, White
+                    }
+                    $u
+                    if ($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum -eq $Count) {
+                        Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum) ", "has been reached. Skipping..." -Color White, Yellow, White
+                        $TestingLimitReached = $true
+                        break
                     }
                 }
             }
+            #}
             Write-Color @WriteParameters '[i] Ending processing ', 'Users', ' section' -Color White, Yellow, White
         } else {
             Write-Color @WriteParameters '[i] Skipping processing ', 'Users', ' section' -Color White, Yellow, White
