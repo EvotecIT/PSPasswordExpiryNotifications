@@ -3,8 +3,6 @@ Import-Module .\PSPasswordExpiryNotifications.psd1 -Force
 $EmailParameters = @{
     EmailFrom                  = "monitoring@domain.pl"
     EmailTo                    = "przemyslaw.klys@domain.pl" # your default email field (IMPORTANT)
-    EmailCC                    = ""
-    EmailBCC                   = ""
     EmailReplyTo               = "helpdesk@domain.pl" # email to use when users press Reply
     EmailServer                = ""
     EmailServerPassword        = ""

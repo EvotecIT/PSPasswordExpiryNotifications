@@ -1,9 +1,21 @@
-[![PowerShellGallery Version](https://img.shields.io/powershellgallery/v/PSPasswordExpiryNotifications.svg)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
-[![PowerShellGallery Preview Version](https://img.shields.io/powershellgallery/vpre/PSPasswordExpiryNotifications.svg?label=powershell%20gallery%20preview&colorB=yellow)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
-[![PowerShellGallery Platform](https://img.shields.io/powershellgallery/p/PSPasswordExpiryNotifications.svg)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
-![Top Language](https://img.shields.io/github/languages/top/evotecit/PSPasswordExpiryNotifications.svg)
-![Code](https://img.shields.io/github/languages/code-size/evotecit/PSPasswordExpiryNotifications.svg)
-[![PowerShellGallery Downloads](https://img.shields.io/powershellgallery/dt/PSPasswordExpiryNotifications.svg)](https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications)
+<p align="center">
+  <a href="https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications"><img src="https://img.shields.io/powershellgallery/v/PSPasswordExpiryNotifications.svg"></a>
+  <a href="https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications"><img src="https://img.shields.io/powershellgallery/vpre/PSPasswordExpiryNotifications.svg?label=powershell%20gallery%20preview&colorB=yellow"></a>
+  <a href="https://github.com/EvotecIT/PSPasswordExpiryNotifications"><img src="https://img.shields.io/github/license/EvotecIT/PSPasswordExpiryNotifications.svg"></a>
+</p>
+
+<p align="center">
+  <a href="https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications"><img src="https://img.shields.io/powershellgallery/p/PSPasswordExpiryNotifications.svg"></a>
+  <a href="https://github.com/EvotecIT/PSPasswordExpiryNotifications"><img src="https://img.shields.io/github/languages/top/evotecit/PSPasswordExpiryNotifications.svg"></a>
+  <a href="https://github.com/EvotecIT/PSPasswordExpiryNotifications"><img src="https://img.shields.io/github/languages/code-size/evotecit/PSPasswordExpiryNotifications.svg"></a>
+  <a href="https://github.com/EvotecIT/PSPasswordExpiryNotifications"><img src="https://img.shields.io/powershellgallery/dt/PSPasswordExpiryNotifications.svg"></a>
+</p>
+
+<p align="center">
+  <a href="https://twitter.com/PrzemyslawKlys"><img src="https://img.shields.io/twitter/follow/PrzemyslawKlys.svg?label=Twitter%20%40PrzemyslawKlys&style=social"></a>
+  <a href="https://evotec.xyz/hub"><img src="https://img.shields.io/badge/Blog-evotec.xyz-2A6496.svg"></a>
+  <a href="https://www.linkedin.com/in/pklys"><img src="https://img.shields.io/badge/LinkedIn-pklys-0077B5.svg?logo=LinkedIn"></a>
+</p>
 
 # PSPasswordExpiryNotifications - PowerShell module
 
@@ -15,6 +27,15 @@ Following PowerShell Module provides different approach to scheduling password n
 - [Full Description (and a know-how) for this project](https://evotec.xyz/hub/scripts/pspasswordexpirynotifications-powershell-module/)
 
 ### Updates
+
+- 1.6.1 - 2019.11.16
+  - Some stuff was rewritten for faster processing
+  - Package is now published without any dependencies
+    - PSSharedGoods\PSWriteColor and other modules are used only as part of development
+    - You can remove those modules if you don't use their other features as those needed functions are bundled in.
+  - LimitScope added to Managers. It's possible now to send notifications to managers of users that are in a given group(s) only.
+  - `<<Image>>` was added in earlier version as part of Template
+  - EmailUseDefaultCredentials now available (couldn't get Emails to work on one of the servers). By default set to False, but can be set to True if you have issues to send email
 
 - 1.1 - 2019.10.19
   - New feature:
