@@ -36,6 +36,7 @@ Following PowerShell Module provides different approach to scheduling password n
   - LimitScope added to Managers. It's possible now to send notifications to managers of users that are in a given group(s) only.
   - `<<Image>>` was added in earlier version as part of Template
   - EmailUseDefaultCredentials now available (couldn't get Emails to work on one of the servers). By default set to False, but can be set to True if you have issues to send email
+  - Targets whole Forest, rather than just Domain. May add a feature to limit to only domain later on.
 
 - 1.1 - 2019.10.19
   - New feature:
