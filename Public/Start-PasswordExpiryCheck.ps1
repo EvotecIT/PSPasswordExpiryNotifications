@@ -13,7 +13,15 @@ Function Start-PasswordExpiryCheck {
 
     $Today = Get-Date
     $CachedUsers = [ordered] @{ }
-    $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -WriteParameters $WriteParameters -CachedUsers $CachedUsers | Sort-Object DateExpiry
+
+    [Array] $ConditionProperties = if ($FormattingParameters.Conditions) {
+        foreach ($Key in $FormattingParameters.Conditions.Keys) {
+            foreach ($Condition in $FormattingParameters.Conditions["$Key"].Keys | Where-Object { $_ -ne 'DefaultCondition' }) {
+                $Condition
+            }
+        }
+    }
+    $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -ConditionProperties $ConditionProperties -WriteParameters $WriteParameters -CachedUsers $CachedUsers | Sort-Object DateExpiry
     $UsersWithEmail = @(
         $Users | Where-Object { $_.EmailAddress -like '*@*' }
     )

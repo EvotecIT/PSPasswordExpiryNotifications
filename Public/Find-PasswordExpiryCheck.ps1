@@ -2,6 +2,7 @@ function Find-PasswordExpiryCheck {
     [CmdletBinding()]
     param(
         [string] $AdditionalProperties,
+        [Array] $ConditionProperties,
         [System.Collections.IDictionary] $WriteParameters,
         [System.Collections.IDictionary] $CachedUsers
     )
@@ -18,6 +19,9 @@ function Find-PasswordExpiryCheck {
         'Manager', 'DisplayName', 'GivenName', 'Surname', 'SamAccountName', 'EmailAddress', 'msDS-UserPasswordExpiryTimeComputed', 'PasswordExpired', 'PasswordLastSet', 'PasswordNotRequired', 'Enabled', 'PasswordNeverExpires', 'Mail'
         if ($AdditionalProperties) {
             $AdditionalProperties
+        }
+        if ($ConditionProperties) {
+            $ConditionProperties
         }
     )
     # We're caching all users to make sure it's speedy gonzales when querying for Managers
@@ -93,7 +97,7 @@ function Find-PasswordExpiryCheck {
             $PasswordNeverExpires = $true
         }
 
-        [PSCustomobject] @{
+        $MyUser = [ordered] @{
             UserPrincipalName    = $_.UserPrincipalName
             Domain               = $_.Domain
             SamAccountName       = $_.SamAccountName
@@ -105,11 +109,15 @@ function Find-PasswordExpiryCheck {
             PasswordLastSet      = $_.PasswordLastSet
             PasswordNotRequired  = $_.PasswordNotRequired
             PasswordNeverExpires = $PasswordNeverExpires
-            "Manager"            = $UserManager.Name
-            "ManagerEmail"       = $UserManager.Mail
-            "DateExpiry"         = $DateExpiry
-            "DaysToExpire"       = $DaysToExpire
+            Manager              = $UserManager.Name
+            ManagerEmail         = $UserManager.Mail
+            DateExpiry           = $DateExpiry
+            DaysToExpire         = $DaysToExpire
         }
+        foreach ($Property in $ConditionProperties) {
+            $MyUser["$Property"] = $_.$Property
+        }
+        [PSCustomObject] $MyUser
         #$CachedUsers["$($_.DistinguishedName)"] = $UserToReturn
     }
     $ProcessedUsers
