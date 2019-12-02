@@ -54,8 +54,8 @@ Function Start-PasswordExpiryCheck {
                     break
                 }
                 if ($u.DaysToExpire -in $DaysToExpire) {
-                    $Count++
                     if ($u.EmailAddress -like '*@*') {
+                        $Count++
                         Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", ")."  -Color White, Yellow, White, Red, White, Red, White
                         $TemporaryBody = Set-EmailReplacements -Replacement $EmailBody -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
                         $EmailSubject = Set-EmailReplacements -Replacement $EmailParameters.EmailSubject -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
@@ -223,8 +223,14 @@ Function Start-PasswordExpiryCheck {
     #region Send Emails to Admins
     if ($ConfigurationParameters.RemindersSendToAdmins.Enable -eq $true) {
         Write-Color @WriteParameters '[i] Starting processing ', 'Administrators', ' section' -Color White, Yellow, White
-        $DayHighest = Get-HashMaxValue $ConfigurationParameters.RemindersSendToUsers.Reminders
-        $DayLowest = Get-HashMaxValue $ConfigurationParameters.RemindersSendToUsers.Reminders -Lowest
+        if ($ConfigurationParameters.RemindersSendToUsers.Reminders -is [System.Collections.IDictionary]) {
+            $DayHighest = Get-HashMaxValue $ConfigurationParameters.RemindersSendToUsers.Reminders
+            $DayLowest = Get-HashMaxValue $ConfigurationParameters.RemindersSendToUsers.Reminders -Lowest
+        } else {
+            [Array] $OrderedDays = $ConfigurationParameters.RemindersSendToUsers.Reminders | Sort-Object -Unique
+            $DayHighest = $OrderedDays[-1]
+            $DayLowest = $OrderedDays[0]
+        }
         $DateCountdownStart = (Get-Date).AddDays($DayHighest).Date
         $DateIminnent = (Get-Date).AddDays($DayLowest).Date
         #Write-Color 'Day Highest ', $DayHighest, ' Day Lowest ', $DayLowest, ' Day Countdown Start ', $DateCountdownStart, ' Day Iminnet ', $DateIminnent -Color White, Yellow, White, Yellow, White, Yellow, White, Yellow
@@ -263,9 +269,19 @@ Function Start-PasswordExpiryCheck {
             -TimeToGenerate $Time.Elapsed `
             -CountUsersCountdownStarted $($ExpiringCountdownStarted.Count) `
             -CountUsersImminent $($ExpiringIminent.Count) `
-            -CountUsersAlreadyExpired $($UsersExpired.Count)
+            -CountUsersAlreadyExpired $($UsersExpired.Count) -CountUsersNotified $($UsersNotified.Count)
         $time.Stop()
 
+        if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeSummary.Enabled -eq $true) {
+            $SummaryOfUsers = $Users | Group-Object DaysToExpire `
+            | Select-Object @{Name = 'Days to Expire'; Expression = { [int] $($_.Name) } }, @{Name = 'Users with Days to Expire'; Expression = { [int] $($_.Count) } }
+            $SummaryOfUsers = $SummaryOfUsers | Sort-Object -Property 'Days to Expire'
+
+            Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Summary of Expiring Users' -Color White, Yellow
+            $EmailBody += Set-EmailBody -TableData $SummaryOfUsers `
+                -TableMessageWelcome "Summary of days to expire and it's count" `
+                -TableMessageNoData 'There were no users that have days of expiring.'
+        }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludePasswordNotificationsSent.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Password Notifcations Sent' -Color White, Yellow
             $EmailBody += Set-EmailBody -TableData $UsersNotified `

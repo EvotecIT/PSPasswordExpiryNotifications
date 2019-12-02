@@ -6,7 +6,8 @@ function Set-EmailReportDetails {
         [timespan] $TimeToGenerate,
         [int] $CountUsersImminent,
         [int] $CountUsersCountdownStarted,
-        [int] $CountUsersAlreadyExpired
+        [int] $CountUsersAlreadyExpired,
+        [int] $CountUsersNotified
     )
     $DateReport = Get-Date
     # HTML Report settings
@@ -19,6 +20,8 @@ function Set-EmailReportDetails {
             <strong>Time to generate:</strong> $($TimeToGenerate.Hours) hours, $($TimeToGenerate.Minutes) minutes, $($TimeToGenerate.Seconds) seconds, $($TimeToGenerate.Milliseconds) milliseconds
             <br>
             <strong>Account Executing Report :</strong> $env:userdomain\$($env:username.toupper()) on $($env:ComputerName.toUpper())
+            <br>
+            <strong>Users notified: </strong> $CountUsersNotified
             <br>
             <strong>Users expiring countdown started: </strong> $CountUsersCountdownStarted
             <br>

@@ -32,15 +32,14 @@ function Find-PasswordExpiryCheck {
     $Forest = Get-ADForest
 
     $Users = @(
-        try {
-
-            foreach ($Domain in $Forest.Domains) {
+        foreach ($Domain in $Forest.Domains) {
+            try {
                 Write-Color @WriteParameters -Text "[i] Discovering DC for domain ", "$($Domain)", " in forest ", $Forest.Name -Color White, Yellow, White, Yellow, White, Yellow, White
                 $Server = Get-ADDomainController -Discover -DomainName $Domain -ErrorAction Stop
                 #$Users = Get-ADUser -Server $Server -Filter { Enabled -eq $True -and PasswordNeverExpires -eq $False -and PasswordLastSet -gt 0 -and PasswordNotRequired -ne $True } -Properties $Properties -ErrorAction Stop
-                Write-Color @WriteParameters -Text "[i] Getting users from ", "$($Domain)", " using ", $Server -Color White, Yellow, White, Yellow, White, Yellow, White
+                Write-Color @WriteParameters -Text "[i] Getting users from ", "$($Domain)", " using ", $Server.Hostname -Color White, Yellow, White, Yellow, White, Yellow, White
                 # We query all users instead of using filter. Since we need manager field and manager data this way it should be faster (query once - get it all)
-                $DomainUsers = Get-ADUser -Server $Server -Filter '*' -Properties $Properties -ErrorAction Stop
+                $DomainUsers = Get-ADUser -Server $($Server.HostName) -Filter '*' -Properties $Properties -ErrorAction Stop
                 foreach ($_ in $DomainUsers) {
                     Add-Member -InputObject $_ -Value $Domain -Name 'Domain' -Force -Type NoteProperty
                     $CachedUsers["$($_.DistinguishedName)"] = $_
@@ -49,10 +48,10 @@ function Find-PasswordExpiryCheck {
                         $_
                     }
                 }
+            } catch {
+                $ErrorMessage = $_.Exception.Message -replace "`n", " " -replace "`r", " "
+                Write-Color @WriteParameters '[e] Error: ', $ErrorMessage -Color White, Red
             }
-        } catch {
-            $ErrorMessage = $_.Exception.Message -replace "`n", " " -replace "`r", " "
-            Write-Color @WriteParameters '[e] Error: ', $ErrorMessage -Color White, Red
         }
     )
     Write-Color @WriteParameters -Text "[i] Preparing all users for password expirations in forest ", $Forest.Name -Color White, Yellow, White, Yellow, White, Yellow, White

@@ -10,7 +10,7 @@
             foreach ($Domain in $Forest.Domains) {
                 $Server = Get-ADDomainController -Discover -DomainName $Domain
                 try {
-                    $GroupMembers = Get-ADGroupMember -Identity $Group -Server $Server -ErrorAction Stop -Recursive
+                    $GroupMembers = Get-ADGroupMember -Identity $Group -Server $($Server.HostName) -ErrorAction Stop -Recursive
                     #$GroupMembers
 
                     foreach ($_ in $GroupMembers) {
