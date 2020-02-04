@@ -4,7 +4,8 @@ function Find-PasswordExpiryCheck {
         [string] $AdditionalProperties,
         [Array] $ConditionProperties,
         [System.Collections.IDictionary] $WriteParameters,
-        [System.Collections.IDictionary] $CachedUsers
+        [System.Collections.IDictionary] $CachedUsers,
+        [System.Collections.IDictionary] $CachedUsersPrepared
     )
     if ($null -eq $WriteParameters) {
         $WriteParameters = @{
@@ -117,7 +118,7 @@ function Find-PasswordExpiryCheck {
             $MyUser["$Property"] = $_.$Property
         }
         [PSCustomObject] $MyUser
-        #$CachedUsers["$($_.DistinguishedName)"] = $UserToReturn
+        $CachedUsersPrepared["$($_.DistinguishedName)"] = $MyUser
     }
     $ProcessedUsers
 }
