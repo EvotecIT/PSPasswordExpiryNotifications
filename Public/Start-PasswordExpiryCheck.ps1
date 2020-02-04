@@ -13,6 +13,7 @@ Function Start-PasswordExpiryCheck {
 
     $Today = Get-Date
     $CachedUsers = [ordered] @{ }
+    $CachedUsersPrepared = [ordered] @{ }
 
     [Array] $ConditionProperties = if ($FormattingParameters.Conditions) {
         foreach ($Key in $FormattingParameters.Conditions.Keys) {
