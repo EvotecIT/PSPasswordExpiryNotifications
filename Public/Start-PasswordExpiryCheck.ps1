@@ -127,7 +127,7 @@ Function Start-PasswordExpiryCheck {
         # preparing manager lists
         if ($ConfigurationParameters.RemindersSendToManager.LimitScope.Groups) {
             # send emails to managers only if those people are in limited scope groups
-            [Array] $LimitedScopeMembers = Find-LimitedScope -ConfigurationParameters $ConfigurationParameters -CachedUsers $CachedUsers
+            [Array] $LimitedScopeMembers = Find-LimitedScope -ConfigurationParameters $ConfigurationParameters -CachedUsers $CachedUsersPrepared
             [Array] $UsersWithManagers = foreach ($_ in $UsersNotified) {
                 if ($LimitedScopeMembers.EmailAddress -contains $_.EmailAddress) {
                     if ($null -ne $_.ManagerEmail) {
