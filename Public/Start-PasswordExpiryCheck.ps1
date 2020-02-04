@@ -22,7 +22,7 @@ Function Start-PasswordExpiryCheck {
             }
         }
     }
-    $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -ConditionProperties $ConditionProperties -WriteParameters $WriteParameters -CachedUsers $CachedUsers | Sort-Object DateExpiry
+    $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -ConditionProperties $ConditionProperties -WriteParameters $WriteParameters -CachedUsers $CachedUsers -CachedUsersPrepared $CachedUsersPrepared | Sort-Object DateExpiry
     $UsersWithEmail = @(
         $Users | Where-Object { $_.EmailAddress -like '*@*' }
     )
