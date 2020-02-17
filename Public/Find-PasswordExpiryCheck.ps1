@@ -5,7 +5,8 @@ function Find-PasswordExpiryCheck {
         [Array] $ConditionProperties,
         [System.Collections.IDictionary] $WriteParameters,
         [System.Collections.IDictionary] $CachedUsers,
-        [System.Collections.IDictionary] $CachedUsersPrepared
+        [System.Collections.IDictionary] $CachedUsersPrepared,
+        [System.Collections.IDictionary] $CachedManagers
     )
     if ($null -eq $WriteParameters) {
         $WriteParameters = @{
@@ -28,6 +29,12 @@ function Find-PasswordExpiryCheck {
     # We're caching all users to make sure it's speedy gonzales when querying for Managers
     if (-not $CachedUsers) {
         $CachedUsers = [ordered] @{ }
+    }
+    if (-not $CachedUsersPrepared) {
+        $CachedUsersPrepared = [ordered] @{ }
+    }
+    if (-not $CachedManagers) {
+        $CachedManagers = [ordered] @{}
     }
     Write-Color @WriteParameters -Text "[i] Discovering forest information" -Color White, Yellow, White, Yellow, White, Yellow, White
     $Forest = Get-ADForest
@@ -59,7 +66,7 @@ function Find-PasswordExpiryCheck {
     $ProcessedUsers = foreach ($_ in $Users) {
         $UserManager = $CachedUsers["$($_.Manager)"]
         if ($AdditionalProperties) {
-            # fix trhis for a user
+            # fix this for a user
             $EmailTemp = $_.$AdditionalProperties
             if ($EmailTemp -like '*@*') {
                 $EmailAddress = $EmailTemp
@@ -111,6 +118,7 @@ function Find-PasswordExpiryCheck {
             PasswordNeverExpires = $PasswordNeverExpires
             Manager              = $UserManager.Name
             ManagerEmail         = $UserManager.Mail
+            ManagerDN            = $_.Manager
             DateExpiry           = $DateExpiry
             DaysToExpire         = $DaysToExpire
         }
@@ -120,6 +128,28 @@ function Find-PasswordExpiryCheck {
         [PSCustomObject] $MyUser
         $CachedUsersPrepared["$($_.DistinguishedName)"] = $MyUser
     }
+    foreach ($_ in $CachedUsersPrepared.Keys) {
+        $ManagerDN = $CachedUsersPrepared[$_]['ManagerDN']
+        if ($ManagerDN) {
+            $Manager = $CachedUsers[$ManagerDN]
+
+            $MyUser = [ordered] @{
+                UserPrincipalName = $Manager.UserPrincipalName
+                Domain            = $Manager.Domain
+                SamAccountName    = $Manager.SamAccountName
+                DisplayName       = $Manager.DisplayName
+                GivenName         = $Manager.GivenName
+                Surname           = $Manager.Surname
+                DistinguishedName = $ManagerDN
+            }
+            foreach ($Property in $ConditionProperties) {
+                $MyUser["$Property"] = $_.$Property
+            }
+            $CachedManagers[$ManagerDN] = $MyUser
+        }
+    }
+
+
     $ProcessedUsers
 }
 

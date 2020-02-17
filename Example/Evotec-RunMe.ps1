@@ -140,21 +140,28 @@ $ConfigurationParameters = @{
         AdminsEmail          = 'notifications@domain.pl', 'przemyslaw.klys@domain.pl'
         AdminsEmailSubject   = "[Reporting Evotec] Summary of password reminders"
         Reports              = @{
-            IncludePasswordNotificationsSent = @{
+            IncludePasswordNotificationsSent         = @{
                 Enabled      = $true
                 IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
             }
-            IncludeExpiringImminent          = @{
+            IncludeExpiringImminent                  = @{
                 Enabled      = $true
                 IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
             }
-            IncludeExpiringCountdownStarted  = @{
+            IncludeExpiringCountdownStarted          = @{
                 Enabled      = $true
                 IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
             }
-            IncludeExpired                   = @{
+            IncludeExpired                           = @{
                 Enabled      = $true
                 IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
+            }
+            IncludeManagersPasswordNotificationsSent = @{
+                Enabled      = $true
+                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
+            }
+            IncludeSummary                           = @{
+                Enabled = $true
             }
         }
     }
