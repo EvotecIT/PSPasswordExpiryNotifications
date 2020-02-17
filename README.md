@@ -29,7 +29,7 @@ Following PowerShell Module provides different approach to scheduling password n
 ### Updates
 
 - 1.6.4 - 2020.02.17
-  - Fixes to Managers
+  - Fixes to manager sent emails
   - Fixes to sending emails in some edge cases
   - More reports
 
