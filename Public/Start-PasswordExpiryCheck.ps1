@@ -53,13 +53,13 @@ Function Start-PasswordExpiryCheck {
                 if ($u.DaysToExpire -in $DaysToExpire) {
                     if ($u.EmailAddress -like '*@*') {
                         $Count++
-                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", ")."  -Color White, Yellow, White, Red, White, Red, White
+                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", ")." -Color White, Yellow, White, Red, White, Red, White
                         $TemporaryBody = Set-EmailReplacements -Replacement $EmailBody -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
                         $EmailSubject = Set-EmailReplacements -Replacement $EmailParameters.EmailSubject -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
                         #$u.DaysToExpire = $Day.Value
 
                         if ($ConfigurationParameters.RemindersSendToUsers.RemindersDisplayOnly -eq $true) {
-                            Write-Color @WriteParameters -Text "[i] Pretending to send email to ", "$($u.EmailAddress)", " ...", "Success"  -Color White, Green, White, Green
+                            Write-Color @WriteParameters -Text "[i] Pretending to send email to ", "$($u.EmailAddress)", " ...", "Success" -Color White, Green, White, Green
                             $EmailSent = [ordered] @{ }
                             $EmailSent.Status = $false
                             $EmailSent.SentTo = 'N/A'
@@ -73,7 +73,7 @@ Function Start-PasswordExpiryCheck {
                                 $EmailSplat.InlineAttachments = @{ logo = $FormattingParameters.CompanyBranding.Logo }
                             }
                             if ($ConfigurationParameters.RemindersSendToUsers.SendToDefaultEmail -eq $false) {
-                                Write-Color @WriteParameters -Text "[i] Sending email to ", "$($u.EmailAddress)", " ..."  -Color White, Green -NoNewLine
+                                Write-Color @WriteParameters -Text "[i] Sending email to ", "$($u.EmailAddress)", " ..." -Color White, Green -NoNewLine
                                 $EmailSplat.To = $u.EmailAddress
                             } else {
                                 Write-Color @WriteParameters -Text "[i] Sending email to users is disabled. Sending email to default value: ", "$($EmailParameters.EmailTo) ", "..." -Color White, Yellow, White -NoNewLine
@@ -90,7 +90,7 @@ Function Start-PasswordExpiryCheck {
                     } else {
                         Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $false
                         Add-Member -InputObject $u -NotePropertyName "EmailSentTo" -NotePropertyValue 'Not available'
-                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", "). However user has no email address and will be skipped."  -Color White, Yellow, White, Red, White, Red, White
+                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", "). However user has no email address and will be skipped." -Color White, Yellow, White, Red, White, Red, White
                     }
                     $u
                     if ($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum -eq $Count) {
@@ -146,7 +146,7 @@ Function Start-PasswordExpiryCheck {
                 $ManagersEmails.Add($u.ManagerEmail)
             }
         }
-        Write-Color @WriteParameters '[i] Preparing package for managers with emails ', "$($UsersWithManagers.Count) ", 'users to process with', ' manager filled in', ' where unique managers ', "$($ManagersEmails.Count)" -Color  White, Yellow, White, Yellow, White, Yellow
+        Write-Color @WriteParameters '[i] Preparing package for managers with emails ', "$($UsersWithManagers.Count) ", 'users to process with', ' manager filled in', ' where unique managers ', "$($ManagersEmails.Count)" -Color White, Yellow, White, Yellow, White, Yellow
         # processing one manager at time
         $Count = 0
         foreach ($m in $ManagersEmails) {
@@ -165,12 +165,12 @@ Function Start-PasswordExpiryCheck {
             }
             if ($ConfigurationParameters.RemindersSendToManager.Reports.IncludePasswordNotificationsSent.Enabled -eq $true) {
                 foreach ($u in $UsersNotifiedManagers) {
-                    Write-Color @WriteParameters -Text '[-] User ', "$($u.DisplayName) ", " Managers Email (", "$($m)", ')'  -Color White, Yellow, White, Yellow, White
+                    Write-Color @WriteParameters -Text '[-] User ', "$($u.DisplayName) ", " Managers Email (", "$($m)", ')' -Color White, Yellow, White, Yellow, White
                 }
             }
 
             if ($ConfigurationParameters.RemindersSendToManager.RemindersDisplayOnly -eq $true) {
-                Write-Color @WriteParameters -Text "[i] Pretending to send email to manager email ", "$($m)", " ...", "Success"  -Color White, Green, White, Green
+                Write-Color @WriteParameters -Text "[i] Pretending to send email to manager email ", "$($m)", " ...", "Success" -Color White, Green, White, Green
                 $EmailSent = @{ }
                 $EmailSent.Status = $false
                 $EmailSent.SentTo = 'N/A'
@@ -191,7 +191,7 @@ Function Start-PasswordExpiryCheck {
                     $EmailSplat.InlineAttachments = @{ logo = $FormattingParameters.CompanyBranding.Logo }
                 }
                 if ($ConfigurationParameters.RemindersSendToManager.SendToDefaultEmail -eq $false) {
-                    Write-Color @WriteParameters -Text "[i] Sending email to managers email ", "$($m)", " ..."  -Color White, Green -NoNewLine
+                    Write-Color @WriteParameters -Text "[i] Sending email to managers email ", "$($m)", " ..." -Color White, Green -NoNewLine
                     $EmailSplat.To = $m
                 } else {
                     Write-Color @WriteParameters -Text "[i] Sending email to managers is disabled. Sending email to default value: ", "$($EmailParameters.EmailTo) ", "..." -Color White, Yellow, White -NoNewLine
@@ -230,9 +230,9 @@ Function Start-PasswordExpiryCheck {
         Write-Color @WriteParameters '[i] Starting processing ', 'Disable Expired Users', ' section' -Color White, Yellow, White
         foreach ($U in $UsersExpired) {
             if ($ConfigurationParameters.DisableExpiredUsers.DisplayOnly) {
-                Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expired on (", "$($u.DateExpiry)", "). Pretending to disable acoount..."  -Color White, Yellow, White, Red, White, Red, White
+                Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expired on (", "$($u.DateExpiry)", "). Pretending to disable acoount..." -Color White, Yellow, White, Red, White, Red, White
             } else {
-                Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expired on (", "$($u.DateExpiry)", "). Disabling..."  -Color White, Yellow, White, Red, White, Red, White
+                Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expired on (", "$($u.DateExpiry)", "). Disabling..." -Color White, Yellow, White, Red, White, Red, White
                 Disable-ADAccount -Identity $u.SamAccountName -Confirm:$false
             }
         }
