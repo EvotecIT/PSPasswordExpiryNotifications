@@ -24,9 +24,7 @@ Function Start-PasswordExpiryCheck {
         }
     }
     $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -ConditionProperties $ConditionProperties -WriteParameters $WriteParameters -CachedUsers $CachedUsers -CachedUsersPrepared $CachedUsersPrepared -CachedManagers $CachedManagers | Sort-Object DateExpiry
-    #$UsersWithEmail = @(
-    #    $Users | Where-Object { $_.EmailAddress -like '*@*' }
-    #)
+
     $UsersExpired = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $Today }
 
     $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
@@ -47,9 +45,6 @@ Function Start-PasswordExpiryCheck {
             } else {
                 [Array] $DaysToExpire = $ConfigurationParameters.RemindersSendToUsers.Reminders | Sort-Object -Unique
             }
-            #foreach ($Day in $ConfigurationParameters.RemindersSendToUsers.Reminders.GetEnumerator()) {
-
-            #$Date = (Get-Date).AddDays($Day.Value).Date
             $Count = 0
             foreach ($u in $Users) {
                 if ($TestingLimitReached -eq $true) {
@@ -173,7 +168,6 @@ Function Start-PasswordExpiryCheck {
                     Write-Color @WriteParameters -Text '[-] User ', "$($u.DisplayName) ", " Managers Email (", "$($m)", ')'  -Color White, Yellow, White, Yellow, White
                 }
             }
-            #$ManagerFull['EmailsSent'] = $UserPrincipalNames -join '; '
 
             if ($ConfigurationParameters.RemindersSendToManager.RemindersDisplayOnly -eq $true) {
                 Write-Color @WriteParameters -Text "[i] Pretending to send email to manager email ", "$($m)", " ...", "Success"  -Color White, Green, White, Green
