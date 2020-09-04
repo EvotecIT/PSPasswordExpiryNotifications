@@ -18,7 +18,7 @@ function Find-PasswordExpiryCheck {
 
 
     $Properties = @(
-        'Manager', 'DisplayName', 'GivenName', 'Surname', 'SamAccountName', 'EmailAddress', 'msDS-UserPasswordExpiryTimeComputed', 'PasswordExpired', 'PasswordLastSet', 'PasswordNotRequired', 'Enabled', 'PasswordNeverExpires', 'Mail'
+        'Manager', 'DisplayName', 'GivenName', 'Surname', 'SamAccountName', 'EmailAddress', 'msDS-UserPasswordExpiryTimeComputed', 'PasswordExpired', 'PasswordLastSet', 'PasswordNotRequired', 'Enabled', 'PasswordNeverExpires', 'Mail', 'MemberOf'
         if ($AdditionalProperties) {
             $AdditionalProperties
         }
@@ -51,8 +51,9 @@ function Find-PasswordExpiryCheck {
                 foreach ($_ in $DomainUsers) {
                     Add-Member -InputObject $_ -Value $Domain -Name 'Domain' -Force -Type NoteProperty
                     $CachedUsers["$($_.DistinguishedName)"] = $_
-                    # We reuse filtering
-                    if ($_.Enabled -eq $true -and $_.PasswordNeverExpires -eq $false -and $_.PasswordLastSet -gt 0 -and $_.PasswordNotRequired -ne $true) {
+                    # We reuse filtering, account is enabled, password is required and password is not set to change on next logon
+                    if ($_.Enabled -eq $true -and $_.PasswordNotRequired -ne $true -and $null -ne $_.PasswordLastSet) {
+                        #if ($_.Enabled -eq $true -and $_.PasswordNeverExpires -eq $false -and $null -ne $_.PasswordLastSet -and $_.PasswordNotRequired -ne $true) {
                         $_
                     }
                 }
@@ -99,9 +100,11 @@ function Find-PasswordExpiryCheck {
         } else {
             # This is non-standard situation. This basically means most likely Fine Grained Group Policy is in action where it makes PasswordNeverExpires $true
             # Since FGP policies are a bit special they do not tick the PasswordNeverExpires box, but at the same time value for "msDS-UserPasswordExpiryTimeComputed" is set to 9223372036854775807
+            $PasswordNeverExpires = $true
+        }
+        if ($PasswordNeverExpires -or $null -eq $_.PasswordLastSet) {
             $DateExpiry = $null
             $DaysToExpire = $null
-            $PasswordNeverExpires = $true
         }
 
         $MyUser = [ordered] @{
@@ -116,11 +119,14 @@ function Find-PasswordExpiryCheck {
             PasswordLastSet      = $_.PasswordLastSet
             PasswordNotRequired  = $_.PasswordNotRequired
             PasswordNeverExpires = $PasswordNeverExpires
+            #PasswordAtNextLogon  = $null -eq $_.PasswordLastSet
             Manager              = $UserManager.Name
             ManagerEmail         = $UserManager.Mail
             ManagerDN            = $_.Manager
             DateExpiry           = $DateExpiry
             DaysToExpire         = $DaysToExpire
+            OrganizationalUnit   = ConvertFrom-DistinguishedName -DistinguishedName $_.DistinguishedName -ToOrganizationalUnit
+            MemberOf             = $_.MemberOf
         }
         foreach ($Property in $ConditionProperties) {
             $MyUser["$Property"] = $_.$Property

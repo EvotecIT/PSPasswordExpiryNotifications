@@ -9,7 +9,13 @@ Function Start-PasswordExpiryCheck {
     Test-Prerequisits
 
     $WriteParameters = $ConfigurationParameters.DisplayConsole
-    $FieldName = $ConfigurationParameters.RemindersSendToUsers.UseAdditionalField
+    # This takes care of additional fields for all rules (native and additional)
+    $FieldName = @(
+        $ConfigurationParameters.RemindersSendToUsers.UseAdditionalField
+        foreach ($Rule in $ConfigurationParameters.RemindersSendToUsers.Rules | Where-Object { $_.Enable -eq $true }) {
+            $Rule.UseAdditionalField
+        }
+    ) | Sort-Object -Unique
 
     $Today = Get-Date
     $CachedUsers = [ordered] @{ }
@@ -25,25 +31,21 @@ Function Start-PasswordExpiryCheck {
     }
     $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -ConditionProperties $ConditionProperties -WriteParameters $WriteParameters -CachedUsers $CachedUsers -CachedUsersPrepared $CachedUsersPrepared -CachedManagers $CachedManagers | Sort-Object DateExpiry
 
+    # Build a report for expired users
     $UsersExpired = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $Today }
 
-    $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
-
-    $Image = Set-EmailReportBranding -FormattingOptions $FormattingParameters
-
-    $EmailBody += Set-EmailFormatting -Template $FormattingParameters.Template -FormattingParameters $FormattingParameters `
-        -ConfigurationParameters $ConfigurationParameters -Image $Image
-
     $UsersNotified = @(
-        [bool] $TestingLimitReached = $false
         #region Send Emails to Users
-        if ($ConfigurationParameters.RemindersSendToUsers.Enable -eq $true) {
+        Invoke-ReminderToUsers -RemindersToUsers $ConfigurationParameters.RemindersSendToUsers -EmailParameters $EmailParameters -ConfigurationParameters $ConfigurationParameters -FormattingParameters $FormattingParameters -EmailBody $EmailBody -Users $Users
+        <#
+        $Rule = $ConfigurationParameters.RemindersSendToUsers
+        if ($Rule.Enable -eq $true) {
             Write-Color @WriteParameters '[i] Starting processing ', 'Users', ' section' -Color White, Yellow, White
 
-            if ($ConfigurationParameters.RemindersSendToUsers.Reminders -is [System.Collections.IDictionary]) {
-                [Array] $DaysToExpire = ($ConfigurationParameters.RemindersSendToUsers.Reminders).Values | Sort-Object -Unique
+            if ($Rule.Reminders -is [System.Collections.IDictionary]) {
+                [Array] $DaysToExpire = ($Rule.Reminders).Values | Sort-Object -Unique
             } else {
-                [Array] $DaysToExpire = $ConfigurationParameters.RemindersSendToUsers.Reminders | Sort-Object -Unique
+                [Array] $DaysToExpire = $Rule.Reminders | Sort-Object -Unique
             }
             $Count = 0
             foreach ($u in $Users) {
@@ -58,7 +60,7 @@ Function Start-PasswordExpiryCheck {
                         $EmailSubject = Set-EmailReplacements -Replacement $EmailParameters.EmailSubject -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
                         #$u.DaysToExpire = $Day.Value
 
-                        if ($ConfigurationParameters.RemindersSendToUsers.RemindersDisplayOnly -eq $true) {
+                        if ($Rule.RemindersDisplayOnly -eq $true) {
                             Write-Color @WriteParameters -Text "[i] Pretending to send email to ", "$($u.EmailAddress)", " ...", "Success" -Color White, Green, White, Green
                             $EmailSent = [ordered] @{ }
                             $EmailSent.Status = $false
@@ -72,7 +74,7 @@ Function Start-PasswordExpiryCheck {
                             if ($FormattingParameters.CompanyBranding.Inline) {
                                 $EmailSplat.InlineAttachments = @{ logo = $FormattingParameters.CompanyBranding.Logo }
                             }
-                            if ($ConfigurationParameters.RemindersSendToUsers.SendToDefaultEmail -eq $false) {
+                            if ($Rule.SendToDefaultEmail -eq $false) {
                                 Write-Color @WriteParameters -Text "[i] Sending email to ", "$($u.EmailAddress)", " ..." -Color White, Green -NoNewLine
                                 $EmailSplat.To = $u.EmailAddress
                             } else {
@@ -93,8 +95,8 @@ Function Start-PasswordExpiryCheck {
                         Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", "). However user has no email address and will be skipped." -Color White, Yellow, White, Red, White, Red, White
                     }
                     $u
-                    if ($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum -eq $Count) {
-                        Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($ConfigurationParameters.RemindersSendToUsers.SendCountMaximum) ", "has been reached. Skipping..." -Color White, Yellow, White
+                    if ($Rule.SendCountMaximum -eq $Count) {
+                        Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($Rule.SendCountMaximum) ", "has been reached. Skipping..." -Color White, Yellow, White
                         $TestingLimitReached = $true
                         break
                     }
@@ -105,6 +107,7 @@ Function Start-PasswordExpiryCheck {
         } else {
             Write-Color @WriteParameters '[i] Skipping processing ', 'Users', ' section' -Color White, Yellow, White
         }
+        #>
     )
     #endregion
 
@@ -242,17 +245,22 @@ Function Start-PasswordExpiryCheck {
     #region Send Emails to Admins
     if ($ConfigurationParameters.RemindersSendToAdmins.Enable -eq $true) {
         Write-Color @WriteParameters '[i] Starting processing ', 'Administrators', ' section' -Color White, Yellow, White
-        if ($ConfigurationParameters.RemindersSendToUsers.Reminders -is [System.Collections.IDictionary]) {
-            $DayHighest = Get-HashMaxValue $ConfigurationParameters.RemindersSendToUsers.Reminders
-            $DayLowest = Get-HashMaxValue $ConfigurationParameters.RemindersSendToUsers.Reminders -Lowest
-        } else {
-            [Array] $OrderedDays = $ConfigurationParameters.RemindersSendToUsers.Reminders | Sort-Object -Unique
-            $DayHighest = $OrderedDays[-1]
-            $DayLowest = $OrderedDays[0]
+
+        $SummaryDays = Get-LowestHighestDays -RemindersToUsers $ConfigurationParameters.RemindersSendToUsers
+        $DayHighest = $SummaryDays.DayHighest
+        $DayLowest = $SummaryDays.DayLowest
+        if ($null -eq $DayHighest -or $null -eq $DayLowest) {
+            # Skip reports because reminders are not set at all - weird
+            $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeSummary.Enabled = $false
+            $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludePasswordNotificationsSent.Enabled = $false
+            $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeManagersPasswordNotificationsSent.Enabled = $false
+            $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.Enabled = $false
+            $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.Enabled = $false
+            $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpired.Enabled = $false
+
         }
         $DateCountdownStart = (Get-Date).AddDays($DayHighest).Date
         $DateIminnent = (Get-Date).AddDays($DayLowest).Date
-        #Write-Color 'Day Highest ', $DayHighest, ' Day Lowest ', $DayLowest, ' Day Countdown Start ', $DateCountdownStart, ' Day Iminnet ', $DateIminnent -Color White, Yellow, White, Yellow, White, Yellow, White, Yellow
 
         $ColumnNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
 
@@ -312,13 +320,13 @@ Function Start-PasswordExpiryCheck {
                 -TableMessageWelcome "Following managers had their password bundle notifications sent" `
                 -TableMessageNoData 'No managers required nofifications.'
         }
-        if ( $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.Enabled -eq $true) {
+        if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Users expiring imminent' -Color White, Yellow
             $EmailBody += Set-EmailBody -TableData $ExpiringIminent `
                 -TableMessageWelcome "Following users expiring imminent (Less than $DayLowest day(s)" `
                 -TableMessageNoData 'No users expiring.'
         }
-        if (  $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.Enabled -eq $true) {
+        if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Expiring Couintdown Started' -Color White, Yellow
             $EmailBody += Set-EmailBody -TableData $ExpiringCountdownStarted `
                 -TableMessageWelcome "Following users expiring countdown started (Less than $DayHighest day(s))" `
