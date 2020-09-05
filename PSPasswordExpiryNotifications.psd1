@@ -17,7 +17,7 @@
         }
     }
     RequiredModules      = @{
-        ModuleVersion = '0.0.170'
+        ModuleVersion = '0.0.171'
         ModuleName    = 'PSSharedGoods'
         GUID          = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe'
     }
