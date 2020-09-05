@@ -12,7 +12,7 @@
         TestingLimitReached = $false
     }
     if ($Rule.Enable -eq $true) {
-
+        #$Today = Get-Date
         $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
         $Image = Set-EmailReportBranding -FormattingOptions $FormattingParameters
         $EmailBody += Set-EmailFormatting -Template $FormattingParameters.Template -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters -Image $Image
@@ -29,23 +29,62 @@
             if ($Limits.TestingLimitReached -eq $true) {
                 break
             }
-            <#
-            if ($Rule.Target.PasswordNeverExpires -eq $true) {
-                # this is non-standard situation. We want to monitor use
-                if ($u.PasswordNeverExpires) {
 
+            if ($null -eq $Rule.PasswordNeverExpires -or $null -eq $Rule.PasswordNeverExpiresDays -or $Rule.PasswordNeverExpires -eq $false) {
+                # This is standard situation that user expires normally
+                if ($u.PasswordNeverExpires -eq $true -or $u.PasswordAtNextLogon -eq $true) {
+                    continue
+                }
+            } elseif ($Rule.PasswordNeverExpires -eq $true -and $Rule.PasswordNeverExpiresDays -is [int]) {
+                # this is for situation where we want to monitor PasswordNeverExpires
+                if ($u.PasswordAtNextLogon -eq $true) {
+                    continue
                 }
             } else {
-
-            }
-            #>
-            # This is standard situation that user expires normally
-            if ($u.PasswordNeverExpires -eq $true -or $u.PasswordAtNextLogon -eq $true) {
+                Write-Color @WriteParameters '[i] Something went wrong as there are no rules matching...' -Color Red
                 continue
             }
+
+            if ($u.PasswordNeverExpires -eq $true) {
+                # If we're here it means we want to get only users that never expire
+                $PretendedDateExpiration = ($u.PasswordLastSet).AddDays($Rule.PasswordNeverExpiresDays)
+                $PretendedDaysToExpire = (New-TimeSpan -Start (Get-Date) -End ($PretendedDateExpiration)).Days
+                # we overwrite dates
+                $u.DateExpiry = $PretendedDateExpiration
+                $u.DaysToExpire = $PretendedDaysToExpire
+            }
+
+            # this is standard way - check if user is expiring within the correct date
             if ($u.DaysToExpire -notin $DaysToExpire) {
                 continue
             }
+
+            # This makes sure to apply notifications
+            if ($Rule.LimitGroup) {
+                $Found = $false
+                foreach ($LimitGroup in $Rule.LimitGroup) {
+                    if ($LimitGroup -in $u.MemberOf) {
+                        $Found = $true
+                        break
+                    }
+                }
+                if (-not $Found) {
+                    continue
+                }
+            }
+            if ($Rule.LimitOU) {
+                $Found = $false
+                foreach ($LimitOU in $Rule.LimitOU) {
+                    if ($LimitOU -like $u.OrganizationalUnit) {
+                        $Found = $true
+                        break
+                    }
+                }
+                if (-not $Found) {
+                    continue
+                }
+            }
+
             if ($u.EmailAddress -like '*@*') {
                 $Count++
                 Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", ")." -Color White, Yellow, White, Red, White, Red, White
