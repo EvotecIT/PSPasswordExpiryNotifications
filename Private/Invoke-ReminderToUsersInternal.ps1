@@ -40,6 +40,9 @@
                 if ($u.PasswordAtNextLogon -eq $true) {
                     continue
                 }
+                if ($u.PasswordNeverExpires -eq $false) {
+                    continue
+                }
             } else {
                 Write-Color @WriteParameters '[i] Something went wrong as there are no rules matching...' -Color Red
                 continue

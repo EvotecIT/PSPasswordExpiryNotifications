@@ -5,10 +5,12 @@ function Set-EmailHead {
     )
     $head = @"
 <!DOCTYPE html>
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta content="width=device-width, initial-scale=1" name="viewport">
-<meta name="description" content="Password Expiration Email">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+</head>
+
     <style>
     BODY {
         background-color: white;
