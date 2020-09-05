@@ -1,4 +1,4 @@
-function Set-EmailReportDetails {
+﻿function Set-EmailReportDetails {
     [CmdletBinding()]
     param(
         [System.Collections.IDictionary] $FormattingOptions,

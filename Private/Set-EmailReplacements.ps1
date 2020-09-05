@@ -1,4 +1,4 @@
-function Set-EmailReplacements {
+﻿function Set-EmailReplacements {
     [CmdletBinding()]
     param(
         [string] $Replacement,
