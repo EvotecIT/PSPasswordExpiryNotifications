@@ -1,4 +1,4 @@
-function Test-Prerequisits {
+﻿function Test-Prerequisits {
     [CmdletBinding()]
     param()
     try {
