@@ -271,15 +271,15 @@
             $UsersNotified = $UsersNotified | Select-Object $ColumnNames, 'EmailSent', 'EmailSentTo'
         }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.IncludeNames.Count -gt 0) {
-            $ExpiringIminent = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateIminnent -and $_.PasswordExpired -eq $false } | Select-Object $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.IncludeNames
+            $ExpiringIminent = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateIminnent -and $_.PasswordExpired -eq $false -and $_.PasswordNeverExpires -eq $false } | Select-Object $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.IncludeNames
         } else {
-            $ExpiringIminent = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateIminnent -and $_.PasswordExpired -eq $false } | Select-Object $ColumnNames
+            $ExpiringIminent = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateIminnent -and $_.PasswordExpired -eq $false -and $_.PasswordNeverExpires -eq $false } | Select-Object $ColumnNames
         }
 
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.IncludeNames -gt 0) {
-            $ExpiringCountdownStarted = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateCountdownStart -and $_.PasswordExpired -eq $false } | Select-Object $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.IncludeNames
+            $ExpiringCountdownStarted = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateCountdownStart -and $_.PasswordExpired -eq $false -and $_.PasswordNeverExpires -eq $false } | Select-Object $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.IncludeNames
         } else {
-            $ExpiringCountdownStarted = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateCountdownStart -and $_.PasswordExpired -eq $false } | Select-Object $ColumnNames
+            $ExpiringCountdownStarted = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $DateCountdownStart -and $_.PasswordExpired -eq $false -and $_.PasswordNeverExpires -eq $false } | Select-Object $ColumnNames
         }
 
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpired.IncludeNames -gt 0) {
