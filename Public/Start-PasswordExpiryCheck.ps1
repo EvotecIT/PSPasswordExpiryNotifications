@@ -1,4 +1,4 @@
-Function Start-PasswordExpiryCheck {
+﻿Function Start-PasswordExpiryCheck {
     [CmdletBinding()]
     param (
         [System.Collections.IDictionary] $EmailParameters,
@@ -251,13 +251,14 @@ Function Start-PasswordExpiryCheck {
         $DayLowest = $SummaryDays.DayLowest
         if ($null -eq $DayHighest -or $null -eq $DayLowest) {
             # Skip reports because reminders are not set at all - weird
+            <#
             $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeSummary.Enabled = $false
             $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludePasswordNotificationsSent.Enabled = $false
             $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeManagersPasswordNotificationsSent.Enabled = $false
             $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.Enabled = $false
             $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.Enabled = $false
             $ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpired.Enabled = $false
-
+            #>
         }
         $DateCountdownStart = (Get-Date).AddDays($DayHighest).Date
         $DateIminnent = (Get-Date).AddDays($DayLowest).Date
