@@ -1,4 +1,4 @@
-function Find-PasswordExpiryCheck {
+﻿function Find-PasswordExpiryCheck {
     [CmdletBinding()]
     param(
         [string] $AdditionalProperties,
