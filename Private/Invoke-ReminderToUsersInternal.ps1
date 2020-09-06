@@ -57,11 +57,6 @@
                 $u.DaysToExpire = $PretendedDaysToExpire
             }
 
-            # this is standard way - check if user is expiring within the correct date
-            if ($u.DaysToExpire -notin $DaysToExpire) {
-                continue
-            }
-
             # This makes sure to apply notifications
             if ($Rule.LimitGroup) {
                 $Found = $false
@@ -86,6 +81,13 @@
                 if (-not $Found) {
                     continue
                 }
+            }
+
+            $Script:UsersApplicable.Add($u)
+
+            # this is standard way - check if user is expiring within the correct date
+            if ($u.DaysToExpire -notin $DaysToExpire) {
+                continue
             }
 
             if ($u.EmailAddress -like '*@*') {
