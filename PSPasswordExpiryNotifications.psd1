@@ -17,9 +17,13 @@
         }
     }
     RequiredModules      = @{
-        ModuleVersion = '0.0.171'
+        ModuleVersion = '0.0.173'
         ModuleName    = 'PSSharedGoods'
         GUID          = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe'
+    }, @{
+        ModuleVersion = '0.1.10'
+        ModuleName    = 'PSWriteExcel'
+        GUID          = '82232c6a-27f1-435d-a496-929f7221334b'
     }
     RootModule           = 'PSPasswordExpiryNotifications.psm1'
 }

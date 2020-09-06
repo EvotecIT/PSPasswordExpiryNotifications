@@ -28,6 +28,22 @@ Following PowerShell Module provides different approach to scheduling password n
 
 ### Updates
 
+- 1.6.5 - 2020.09.06
+  - Resolved issues with encoding, removed encoding setting due conflicts
+    - [x] Set by default to UTF-8 which should resolve weird chars
+  - Added filtering by group
+    - [x] `LimitGroup` takes an array of DistinguishedNames - compares on eq (no wildcard)
+  - Added filtering by OU
+    - [x] `LimitOU` takes an array of DistinguishedNames - compares with like so wildcard is supported
+  - Added ability to define multiple rules within one run
+  - Added ability to send Admins Report as Excel
+    - [x] ReportsAsExcel = $true
+  - Added ability to hide Admins Report as HTML
+    - [x] ReportsAsHTML = $false
+  - Added ability to send expiration emails to accounts that never expire:
+    - [x] PasswordNeverExpires     = $true
+    - [x] PasswordNeverExpiresDays = 30
+
 - 1.6.4 - 2020.02.17
   - Fixes to manager sent emails
   - Fixes to sending emails in some edge cases
