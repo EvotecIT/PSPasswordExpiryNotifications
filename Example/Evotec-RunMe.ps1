@@ -12,6 +12,7 @@ $EmailParameters = @{
     EmailSubject               = "[Password Expiring] Your password will expire on <<DateExpiry>> (<<TimeToExpire>> days)"
     EmailPriority              = "Low" # Normal, High
     EmailUseDefaultCredentials = $false
+    # There is no encoding anymore. It's by default UTF8 to prevent issues, setting it up won't do anything
 }
 
 $FormattingParameters = @{
@@ -111,7 +112,7 @@ $ConfigurationParameters = @{
             Notification3 = 34
         }
         #UseAdditionalField   = 'extensionAttribute13'
-        #SendCountMaximum     = 3
+        #SendCountMaximum     = 3 # this makes it send first X emails, it's counted per rule
         Rules                = @(
             # rules are new way to define things. You can define more than one rule and limit it per group/ou
             # the primary rule above can be set or doesn't have to, all parameters from rules below can be use across different rules
@@ -120,7 +121,7 @@ $ConfigurationParameters = @{
                 Enable               = $false # doesn't processes this section at all if $false
                 RemindersDisplayOnly = $false # prevents sending any emails (good for testing) - including managers
                 SendToDefaultEmail   = $true # if enabled $EmailParameters are used (good for testing)
-                Reminders            = 1, 7, 14, 15
+                Reminders            = 1, 7, 14, 15 # both dictionary and array works for reminders
                 UseAdditionalField   = 'extensionAttribute13'
                 SendCountMaximum     = 3
             }
@@ -136,7 +137,7 @@ $ConfigurationParameters = @{
                 Enable                   = $true # doesn't processes this section at all if $false
                 RemindersDisplayOnly     = $false # prevents sending any emails (good for testing) - including managers
                 SendToDefaultEmail       = $true # if enabled $EmailParameters are used (good for testing)
-                Reminders                = 0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 28, 30 #50
+                Reminders                = 1, 2, 3, 4, 5, 12, 13, 14, 15, 28, 30 #50
                 UseAdditionalField       = 'extensionAttribute13'
                 #SendCountMaximum         = 3
                 # this means we want to process only users that NeverExpire
@@ -181,7 +182,7 @@ $ConfigurationParameters = @{
         AdminsEmail          = 'notifications@domain.pl', 'przemyslaw.klys@domain.pl'
         AdminsEmailSubject   = "[Reporting Evotec] Summary of password reminders"
         ReportsAsExcel       = $true
-        #ReportsAsHTML        = $true
+        #ReportsAsHTML        = $true # by default it's always set to $true, you can disable it here if you don't want to have it (prefer Excel for example)
         Reports              = @{
             IncludeSummary                           = @{
                 Enabled = $true
