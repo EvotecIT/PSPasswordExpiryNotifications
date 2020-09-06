@@ -15,8 +15,11 @@
         #$Today = Get-Date
         $EmailBody = Set-EmailHead -FormattingOptions $FormattingParameters
         $Image = Set-EmailReportBranding -FormattingOptions $FormattingParameters
-        $EmailBody += Set-EmailFormatting -Template $FormattingParameters.Template -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters -Image $Image
-
+        if ($Rule.Template) {
+            $EmailBody += Set-EmailFormatting -Template $Rule.Template -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters -Image $Image
+        } else {
+            $EmailBody += Set-EmailFormatting -Template $FormattingParameters.Template -FormattingParameters $FormattingParameters -ConfigurationParameters $ConfigurationParameters -Image $Image
+        }
         Write-Color @WriteParameters '[i] Starting processing ', 'Users', ' section' -Color White, Yellow, White
 
         if ($Rule.Reminders -is [System.Collections.IDictionary]) {

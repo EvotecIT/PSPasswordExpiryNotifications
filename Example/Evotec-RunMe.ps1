@@ -153,6 +153,24 @@ $ConfigurationParameters = @{
                     #'*OU=Accounts,OU=Production,DC=ad,DC=evotec,DC=xyz'
                     'OU=UsersNoSync,OU=Accounts,OU=Production,DC=ad,DC=evotec,DC=xyz'
                 )
+                # This is custom template that only applies to this rule
+                Template                 = "
+                <<Image>>
+
+                Hello <<DisplayName>>,
+
+                Your password is due to expire in <<TimeToExpire>> - never days days.
+
+                To change your password:
+                - press CTRL+ALT+DEL -> Change a password...
+
+                If you have forgotten you password and need to reset it, you can do this by <<ClickingHere>>
+                In case of problems please contact HelpDesk by <<VisitingPortal>> or by sending an email to <<ServiceDeskEmail>>.
+
+                Alternatively you can always call Service Desk at +48 22 600 20 20
+
+                Kind regards,
+                Evotec IT"
             }
         )
     }

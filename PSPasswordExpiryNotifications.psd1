@@ -7,7 +7,7 @@
     Description          = 'This module allows creation of password expiry emails for users, managers and administrators according to defined template.'
     FunctionsToExport    = 'Find-PasswordExpiryCheck', 'Start-PasswordExpiryCheck'
     GUID                 = '25ad8288-996d-446c-9109-c48ceda61d9c'
-    ModuleVersion        = '1.6.5'
+    ModuleVersion        = '1.6.6'
     PowerShellVersion    = '5.1'
     PrivateData          = @{
         PSData = @{
