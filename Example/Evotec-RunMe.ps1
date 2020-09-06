@@ -112,6 +112,48 @@ $ConfigurationParameters = @{
         }
         #UseAdditionalField   = 'extensionAttribute13'
         #SendCountMaximum     = 3
+        Rules                = @(
+            # rules are new way to define things. You can define more than one rule and limit it per group/ou
+            # the primary rule above can be set or doesn't have to, all parameters from rules below can be use across different rules
+            # it's up to you tho that the notifications are unique - if you put 2 rules that do the same thing, 2 notifications will be sent
+            [ordered] @{
+                Enable               = $false # doesn't processes this section at all if $false
+                RemindersDisplayOnly = $false # prevents sending any emails (good for testing) - including managers
+                SendToDefaultEmail   = $true # if enabled $EmailParameters are used (good for testing)
+                Reminders            = 1, 7, 14, 15
+                UseAdditionalField   = 'extensionAttribute13'
+                SendCountMaximum     = 3
+            }
+            [ordered]@{
+                Enable               = $false # doesn't processes this section at all if $false
+                RemindersDisplayOnly = $false # prevents sending any emails (good for testing) - including managers
+                SendToDefaultEmail   = $true # if enabled $EmailParameters are used (good for testing)
+                Reminders            = 3, 9
+                UseAdditionalField   = 'extensionAttribute12'
+                SendCountMaximum     = 3
+            }
+            [ordered] @{
+                Enable                   = $true # doesn't processes this section at all if $false
+                RemindersDisplayOnly     = $false # prevents sending any emails (good for testing) - including managers
+                SendToDefaultEmail       = $true # if enabled $EmailParameters are used (good for testing)
+                Reminders                = 0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 28, 30 #50
+                UseAdditionalField       = 'extensionAttribute13'
+                #SendCountMaximum         = 3
+                # this means we want to process only users that NeverExpire
+                PasswordNeverExpires     = $true
+                PasswordNeverExpiresDays = 30
+                # limit group or limit OU can limit people with password never expire to certain users only
+                LimitGroup               = @(
+                    #'CN=GDS-PasswordExpiryNotifications,OU=Security,OU=Groups,OU=Production,DC=ad,DC=evotec,DC=xyz',
+                    #'CN=GDS-TestGroup9,OU=Security,OU=Groups,OU=Production,DC=ad,DC=evotec,DC=xyz'
+                )
+                LimitOU                  = @(
+                    #'OU=UsersNoSync,OU=Accounts,OU=Production,DC=ad,DC=evotec,DC=xyz'
+                    #'*OU=Accounts,OU=Production,DC=ad,DC=evotec,DC=xyz'
+                    'OU=UsersNoSync,OU=Accounts,OU=Production,DC=ad,DC=evotec,DC=xyz'
+                )
+            }
+        )
     }
     RemindersSendToManager = @{
         Enable               = $true # doesn't processes this section at all if $false
@@ -138,29 +180,31 @@ $ConfigurationParameters = @{
         RemindersDisplayOnly = $true # prevents sending any emails (good for testing)
         AdminsEmail          = 'notifications@domain.pl', 'przemyslaw.klys@domain.pl'
         AdminsEmailSubject   = "[Reporting Evotec] Summary of password reminders"
+        ReportsAsExcel       = $true
+        #ReportsAsHTML        = $true
         Reports              = @{
+            IncludeSummary                           = @{
+                Enabled = $true
+            }
             IncludePasswordNotificationsSent         = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
+                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'PasswordNeverExpires', 'EmailSent', 'EmailSentTo'
             }
             IncludeExpiringImminent                  = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
+                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'PasswordNeverExpires'
             }
             IncludeExpiringCountdownStarted          = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
+                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'PasswordNeverExpires'
             }
             IncludeExpired                           = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet'
+                IncludeNames = 'UserPrincipalName', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'PasswordNeverExpires'
             }
             IncludeManagersPasswordNotificationsSent = @{
                 Enabled      = $true
-                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'EmailSent', 'EmailSentTo'
-            }
-            IncludeSummary                           = @{
-                Enabled = $true
+                IncludeNames = 'UserPrincipalName', 'Domain', 'DisplayName', 'DateExpiry', 'DaysToExpire', 'PasswordExpired', 'SamAccountName', 'Manager', 'ManagerEmail', 'PasswordLastSet', 'PasswordNeverExpires', 'EmailSent', 'EmailSentTo'
             }
         }
     }
