@@ -8,6 +8,14 @@
     $time = [System.Diagnostics.Stopwatch]::StartNew() # Timer Start
     Test-Prerequisits
 
+    # Overwritting whatever user set as this is what it should be, always for proper display
+    if ($EmailParameters.EmailEncoding -or $EmailParameters.EmailSubjectEncoding -or $EmailParameters.EmailBodyEncoding) {
+        Write-Color @WriteParameters '[e] Setting encoding was depracated. Its set automatically now to utf8' -Color Red
+    }
+    $EmailParameters.EmailEncoding = ""
+    $EmailParameters.EmailSubjectEncoding = ""
+    $EmailParameters.EmailBodyEncoding = ""
+
     $WriteParameters = $ConfigurationParameters.DisplayConsole
     # This takes care of additional fields for all rules (native and additional)
     $FieldName = @(
@@ -29,90 +37,16 @@
             }
         }
     }
-    $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -ConditionProperties $ConditionProperties -WriteParameters $WriteParameters -CachedUsers $CachedUsers -CachedUsersPrepared $CachedUsersPrepared -CachedManagers $CachedManagers | Sort-Object DateExpiry
+    [Array] $Users = Find-PasswordExpiryCheck -AdditionalProperties $FieldName -ConditionProperties $ConditionProperties -WriteParameters $WriteParameters -CachedUsers $CachedUsers -CachedUsersPrepared $CachedUsersPrepared -CachedManagers $CachedManagers | Sort-Object DateExpiry
 
     # Build a report for expired users
-    $UsersExpired = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $Today }
+    [Array] $UsersExpired = $Users | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $Today }
 
-    $UsersNotified = @(
-        #region Send Emails to Users
-        Invoke-ReminderToUsers -RemindersToUsers $ConfigurationParameters.RemindersSendToUsers -EmailParameters $EmailParameters -ConfigurationParameters $ConfigurationParameters -FormattingParameters $FormattingParameters -EmailBody $EmailBody -Users $Users
-        <#
-        $Rule = $ConfigurationParameters.RemindersSendToUsers
-        if ($Rule.Enable -eq $true) {
-            Write-Color @WriteParameters '[i] Starting processing ', 'Users', ' section' -Color White, Yellow, White
-
-            if ($Rule.Reminders -is [System.Collections.IDictionary]) {
-                [Array] $DaysToExpire = ($Rule.Reminders).Values | Sort-Object -Unique
-            } else {
-                [Array] $DaysToExpire = $Rule.Reminders | Sort-Object -Unique
-            }
-            $Count = 0
-            foreach ($u in $Users) {
-                if ($TestingLimitReached -eq $true) {
-                    break
-                }
-                if ($u.DaysToExpire -in $DaysToExpire) {
-                    if ($u.EmailAddress -like '*@*') {
-                        $Count++
-                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", ")." -Color White, Yellow, White, Red, White, Red, White
-                        $TemporaryBody = Set-EmailReplacements -Replacement $EmailBody -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
-                        $EmailSubject = Set-EmailReplacements -Replacement $EmailParameters.EmailSubject -User $u -FormattingParameters $FormattingParameters -EmailParameters $EmailParameters -Day $u.DaysToExpire
-                        #$u.DaysToExpire = $Day.Value
-
-                        if ($Rule.RemindersDisplayOnly -eq $true) {
-                            Write-Color @WriteParameters -Text "[i] Pretending to send email to ", "$($u.EmailAddress)", " ...", "Success" -Color White, Green, White, Green
-                            $EmailSent = [ordered] @{ }
-                            $EmailSent.Status = $false
-                            $EmailSent.SentTo = 'N/A'
-                        } else {
-                            $EmailSplat = @{
-                                EmailParameters = $EmailParameters
-                                Body            = $TemporaryBody
-                                Subject         = $EmailSubject
-                            }
-                            if ($FormattingParameters.CompanyBranding.Inline) {
-                                $EmailSplat.InlineAttachments = @{ logo = $FormattingParameters.CompanyBranding.Logo }
-                            }
-                            if ($Rule.SendToDefaultEmail -eq $false) {
-                                Write-Color @WriteParameters -Text "[i] Sending email to ", "$($u.EmailAddress)", " ..." -Color White, Green -NoNewLine
-                                $EmailSplat.To = $u.EmailAddress
-                            } else {
-                                Write-Color @WriteParameters -Text "[i] Sending email to users is disabled. Sending email to default value: ", "$($EmailParameters.EmailTo) ", "..." -Color White, Yellow, White -NoNewLine
-                            }
-                            $EmailSent = Send-Email @EmailSplat
-                            if ($EmailSent.Status -eq $true) {
-                                Write-Color -Text "Done" -Color "Green"
-                            } else {
-                                Write-Color -Text "Failed!" -Color "Red"
-                            }
-                        }
-                        Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $EmailSent.Status
-                        Add-Member -InputObject $u -NotePropertyName "EmailSentTo" -NotePropertyValue $EmailSent.SentTo
-                    } else {
-                        Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $false
-                        Add-Member -InputObject $u -NotePropertyName "EmailSentTo" -NotePropertyValue 'Not available'
-                        Write-Color @WriteParameters -Text "[i] User ", "$($u.DisplayName)", " expires in ", "$($u.DaysToExpire)", " days (", "$($u.DateExpiry)", "). However user has no email address and will be skipped." -Color White, Yellow, White, Red, White, Red, White
-                    }
-                    $u
-                    if ($Rule.SendCountMaximum -eq $Count) {
-                        Write-Color @WriteParameters -Text "[i] Sending email to maximum number of users ", "$($Rule.SendCountMaximum) ", "has been reached. Skipping..." -Color White, Yellow, White
-                        $TestingLimitReached = $true
-                        break
-                    }
-                }
-            }
-            #}
-            Write-Color @WriteParameters '[i] Ending processing ', 'Users', ' section' -Color White, Yellow, White
-        } else {
-            Write-Color @WriteParameters '[i] Skipping processing ', 'Users', ' section' -Color White, Yellow, White
-        }
-        #>
-    )
-    #endregion
+    #region Send Emails to Users
+    [Array] $UsersNotified = Invoke-ReminderToUsers -RemindersToUsers $ConfigurationParameters.RemindersSendToUsers -EmailParameters $EmailParameters -ConfigurationParameters $ConfigurationParameters -FormattingParameters $FormattingParameters -EmailBody $EmailBody -Users $Users
 
     #region Send Emails to Managers
-    $ManagersReceived = if ($ConfigurationParameters.RemindersSendToManager.Enable -eq $true) {
+    [Array] $ManagersReceived = if ($ConfigurationParameters.RemindersSendToManager.Enable -eq $true) {
         Write-Color @WriteParameters '[i] Starting processing ', 'Managers', ' section' -Color White, Yellow, White
         # preparing email
         $EmailSubject = $ConfigurationParameters.RemindersSendToManager.ManagersEmailSubject
@@ -299,46 +233,78 @@
             -CountUsersAlreadyExpired $($UsersExpired.Count) -CountUsersNotified $($UsersNotified.Count)
         $time.Stop()
 
+        $FilePathExcel = Get-FileName -Extension 'xlsx' -Temporary
+
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeSummary.Enabled -eq $true) {
             $SummaryOfUsers = $Users | Group-Object DaysToExpire `
             | Select-Object @{Name = 'Days to Expire'; Expression = { [int] $($_.Name) } }, @{Name = 'Users with Days to Expire'; Expression = { [int] $($_.Count) } }
             $SummaryOfUsers = $SummaryOfUsers | Sort-Object -Property 'Days to Expire'
 
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Summary of Expiring Users' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $SummaryOfUsers `
-                -TableMessageWelcome "Summary of days to expire and it's count" `
-                -TableMessageNoData 'There were no users that have days of expiring.'
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsHTML -ne $false) {
+                $EmailBody += Set-EmailBody -TableData $SummaryOfUsers `
+                    -TableMessageWelcome "Summary of days to expire and it's count" `
+                    -TableMessageNoData 'There were no users that have days of expiring.'
+            }
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsExcel) {
+                $SummaryOfUsers | ConvertTo-Excel -FilePath $FilePathExcel -ExcelWorkSheetName 'Summary' -AutoFilter -AutoFit
+            }
         }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludePasswordNotificationsSent.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Password Notifcations Sent' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $UsersNotified `
-                -TableMessageWelcome "Following users had their password notifications sent" `
-                -TableMessageNoData 'No users required nofifications.'
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsHTML -ne $false) {
+                $EmailBody += Set-EmailBody -TableData $UsersNotified `
+                    -TableMessageWelcome "Following users had their password notifications sent" `
+                    -TableMessageNoData 'No users required nofifications.'
+            }
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsExcel) {
+                $UsersNotified | ConvertTo-Excel -FilePath $FilePathExcel -ExcelWorkSheetName 'NotificationsSent' -AutoFilter -AutoFit
+            }
         }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeManagersPasswordNotificationsSent.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Password Notifcations Sent to Managers' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $ManagersReceived `
-                -TableMessageWelcome "Following managers had their password bundle notifications sent" `
-                -TableMessageNoData 'No managers required nofifications.'
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsHTML -ne $false) {
+                $EmailBody += Set-EmailBody -TableData $ManagersReceived `
+                    -TableMessageWelcome "Following managers had their password bundle notifications sent" `
+                    -TableMessageNoData 'No managers required nofifications.'
+            }
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsExcel) {
+                $ManagersReceived | ConvertTo-Excel -FilePath $FilePathExcel -ExcelWorkSheetName 'NotificationsSentManagers' -AutoFilter -AutoFit
+            }
         }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringImminent.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Users expiring imminent' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $ExpiringIminent `
-                -TableMessageWelcome "Following users expiring imminent (Less than $DayLowest day(s)" `
-                -TableMessageNoData 'No users expiring.'
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsHTML -ne $false) {
+                $EmailBody += Set-EmailBody -TableData $ExpiringIminent `
+                    -TableMessageWelcome "Following users expiring imminent (Less than $DayLowest day(s)" `
+                    -TableMessageNoData 'No users expiring.'
+            }
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsExcel) {
+                $ExpiringIminent | ConvertTo-Excel -FilePath $FilePathExcel -ExcelWorkSheetName 'ExpiringImminent' -AutoFilter -AutoFit
+            }
         }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpiringCountdownStarted.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Expiring Couintdown Started' -Color White, Yellow
-            $EmailBody += Set-EmailBody -TableData $ExpiringCountdownStarted `
-                -TableMessageWelcome "Following users expiring countdown started (Less than $DayHighest day(s))" `
-                -TableMessageNoData 'There were no users that had their coundown started.'
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsHTML -ne $false) {
+                $EmailBody += Set-EmailBody -TableData $ExpiringCountdownStarted `
+                    -TableMessageWelcome "Following users expiring countdown started (Less than $DayHighest day(s))" `
+                    -TableMessageNoData 'There were no users that had their coundown started.'
+            }
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsExcel) {
+                $ExpiringCountdownStarted | ConvertTo-Excel -FilePath $FilePathExcel -ExcelWorkSheetName 'ExpiringCountdownStarted' -AutoFilter -AutoFit
+            }
         }
         if ($ConfigurationParameters.RemindersSendToAdmins.Reports.IncludeExpired.Enabled -eq $true) {
             Write-Color @WriteParameters -Text '[i] Preparing data for report ', 'Users are already expired' -Color White, Yellow
-            if ($ConfigurationParameters.DisableExpiredUsers.Enable -eq $true -and -not $ConfigurationParameters.DisableExpiredUsers.DisplayOnly -eq $true) {
-                $EmailBody += Set-EmailBody -TableData $UsersExpired -TableMessageWelcome "Following users are already expired (and were disabled...)" -TableMessageNoData "No users that are expired."
-            } else {
-                $EmailBody += Set-EmailBody -TableData $UsersExpired -TableMessageWelcome "Following users are already expired (and still enabled...)" -TableMessageNoData "No users that are expired and enabled."
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsHTML -ne $false) {
+                if ($ConfigurationParameters.DisableExpiredUsers.Enable -eq $true -and -not $ConfigurationParameters.DisableExpiredUsers.DisplayOnly -eq $true) {
+                    $EmailBody += Set-EmailBody -TableData $UsersExpired -TableMessageWelcome "Following users are already expired (and were disabled...)" -TableMessageNoData "No users that are expired."
+                } else {
+                    $EmailBody += Set-EmailBody -TableData $UsersExpired -TableMessageWelcome "Following users are already expired (and still enabled...)" -TableMessageNoData "No users that are expired and enabled."
+                }
+            }
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsExcel) {
+                $UsersExpired | ConvertTo-Excel -FilePath $FilePathExcel -ExcelWorkSheetName 'UsersExpired' -AutoFilter -AutoFit
             }
         }
         $EmailBody += "</body>"
@@ -358,6 +324,9 @@
             }
             if ($FormattingParameters.CompanyBranding.Inline) {
                 $EmailSplat.InlineAttachments = @{ logo = $FormattingParameters.CompanyBranding.Logo }
+            }
+            if ($ConfigurationParameters.RemindersSendToAdmins.ReportsAsExcel) {
+                $EmailSplat.Attachment = $FilePathExcel
             }
             $EmailSent = Send-Email @EmailSplat
             if ($EmailSent.Status -eq $true) {

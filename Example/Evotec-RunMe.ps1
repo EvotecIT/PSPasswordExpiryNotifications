@@ -9,7 +9,6 @@ $EmailParameters = @{
     EmailServerPort            = "587"
     EmailServerLogin           = ""
     EmailServerEnableSSL       = 1
-    EmailEncoding              = "Unicode"
     EmailSubject               = "[Password Expiring] Your password will expire on <<DateExpiry>> (<<TimeToExpire>> days)"
     EmailPriority              = "Low" # Normal, High
     EmailUseDefaultCredentials = $false

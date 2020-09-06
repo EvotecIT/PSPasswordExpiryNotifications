@@ -78,7 +78,7 @@
             if ($Rule.LimitOU) {
                 $Found = $false
                 foreach ($LimitOU in $Rule.LimitOU) {
-                    if ($LimitOU -like $u.OrganizationalUnit) {
+                    if ($u.OrganizationalUnit -like $LimitOU) {
                         $Found = $true
                         break
                     }
