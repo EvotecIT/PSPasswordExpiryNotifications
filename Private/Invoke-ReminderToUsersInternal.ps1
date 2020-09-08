@@ -122,9 +122,9 @@
                     }
                     $EmailSent = Send-Email @EmailSplat
                     if ($EmailSent.Status -eq $true) {
-                        Write-Color -Text "Done" -Color "Green"
+                        Write-Color -Text "Done" -Color "Green" -LogFile $WriteParameters.LogFile
                     } else {
-                        Write-Color -Text "Failed!" -Color "Red"
+                        Write-Color -Text "Failed!" -Color "Red" -LogFile $WriteParameters.LogFile
                     }
                 }
                 Add-Member -InputObject $u -NotePropertyName "EmailSent" -NotePropertyValue $EmailSent.Status

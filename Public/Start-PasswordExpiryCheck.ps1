@@ -6,6 +6,20 @@
         [System.Collections.IDictionary] $ConfigurationParameters
     )
     $time = [System.Diagnostics.Stopwatch]::StartNew() # Timer Start
+
+    $WriteParameters = $ConfigurationParameters.DisplayConsole
+
+    if ($WriteParameters.LogFile) {
+        $Folder = $WriteParameters.LogFile | Split-Path
+        if (-not (Test-Path -Path $Folder)) {
+            $null = New-Item -ItemType Directory -Path $Folder -Force
+            if (-not (Test-Path -Path $Folder)) {
+                Write-Color "[e] Can't created $Folder for logging. Terminating..." -Color Red
+                return
+            }
+        }
+    }
+
     Test-Prerequisits
 
     # Overwritting whatever user set as this is what it should be, always for proper display
@@ -16,7 +30,6 @@
     $EmailParameters.EmailSubjectEncoding = ""
     $EmailParameters.EmailBodyEncoding = ""
 
-    $WriteParameters = $ConfigurationParameters.DisplayConsole
     # This takes care of additional fields for all rules (native and additional)
     $FieldName = @(
         $ConfigurationParameters.RemindersSendToUsers.UseAdditionalField
@@ -138,9 +151,9 @@
                 }
                 $EmailSent = Send-Email @EmailSplat
                 if ($EmailSent.Status -eq $true) {
-                    Write-Color -Text "Done" -Color "Green"
+                    Write-Color -Text "Done" -Color "Green" -LogFile $WriteParameters.LogFile
                 } else {
-                    Write-Color -Text "Failed!" -Color "Red"
+                    Write-Color -Text "Failed!" -Color "Red" -LogFile $WriteParameters.LogFile
                 }
             }
 
@@ -334,9 +347,9 @@
             }
             $EmailSent = Send-Email @EmailSplat
             if ($EmailSent.Status -eq $true) {
-                Write-Color -Text "Done" -Color "Green"
+                Write-Color -Text "Done" -Color "Green" -LogFile $WriteParameters.LogFile
             } else {
-                Write-Color -Text "Failed! Error: $($EmailSent.Error)" -Color "Red"
+                Write-Color -Text "Failed! Error: $($EmailSent.Error)" -Color "Red" -LogFile $WriteParameters.LogFile
             }
         }
         Write-Color @WriteParameters '[i] Ending processing ', 'Administrators', ' section' -Color White, Yellow, White
