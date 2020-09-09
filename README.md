@@ -28,6 +28,8 @@ Following PowerShell Module provides different approach to scheduling password n
 
 ### Updates
 
+- 1.6.8 - 2020.09.09
+  - Changed Get-ADGroupMember to Get-ADGroup property Member for Managers due to performance issues
 - 1.6.7 - 2020.09.09
   - Fixed logging to file for status of sent emails
   - Added auto creation of logs directory if it's missing
