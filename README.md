@@ -28,9 +28,11 @@ Following PowerShell Module provides different approach to scheduling password n
 
 ### Updates
 
+- 1.6.7 - 2020.09.09
+  - Fixed logging to file for status of sent emails
+  - Added auto creation of logs directory if it's missing
 - 1.6.6 - 2020.09.06
   - Added ability of template per rule
-
 - 1.6.5 - 2020.09.06
   - Resolved issues with encoding, removed encoding setting due conflicts
     - [x] Set by default to UTF-8 which should resolve weird chars
