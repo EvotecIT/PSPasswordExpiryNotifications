@@ -56,7 +56,7 @@
     $Script:UsersApplicable = [System.Collections.Generic.List[PSCustomObject]]::new()
 
     #region Send Emails to Users
-    [Array] $UsersNotified = Invoke-ReminderToUsers -RemindersToUsers $ConfigurationParameters.RemindersSendToUsers -EmailParameters $EmailParameters -ConfigurationParameters $ConfigurationParameters -FormattingParameters $FormattingParameters -EmailBody $EmailBody -Users $Users
+    [Array] $UsersNotified = Invoke-ReminderToUsers -RemindersToUsers $ConfigurationParameters.RemindersSendToUsers -EmailParameters $EmailParameters -ConfigurationParameters $ConfigurationParameters -FormattingParameters $FormattingParameters -Users $Users
 
     # Build a report for expired users
     [Array] $UsersExpired = $Script:UsersApplicable | Where-Object { $null -ne $_.DateExpiry -and $_.DateExpiry -lt $Today }

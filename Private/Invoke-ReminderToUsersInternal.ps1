@@ -5,7 +5,6 @@
         [System.Collections.IDictionary] $EmailParameters,
         [System.Collections.IDictionary] $FormattingParameters,
         [System.Collections.IDictionary] $ConfigurationParameters,
-        $EmailBody,
         [Array] $Users
     )
     $Limits = @{

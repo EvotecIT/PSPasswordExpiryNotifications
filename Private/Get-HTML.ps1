@@ -1,7 +1,7 @@
 function Get-HTML {
     [CmdletBinding()]
     param (
-        $text
+        [string] $text
     )
     $text = $text.Split("`r")
     foreach ($t in $text) {
