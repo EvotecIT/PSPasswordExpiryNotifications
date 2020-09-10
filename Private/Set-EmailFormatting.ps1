@@ -1,7 +1,7 @@
 ﻿function Set-EmailFormatting {
     [CmdletBinding()]
     param (
-        [string] $Template,
+        $Template,
         [System.Collections.IDictionary] $FormattingParameters,
         [System.Collections.IDictionary] $ConfigurationParameters,
         [PSCustomObject] $Logger,

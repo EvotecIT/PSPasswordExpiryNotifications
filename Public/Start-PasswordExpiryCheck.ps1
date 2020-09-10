@@ -71,7 +71,7 @@
         $EmailBody += Set-EmailFormatting -Template $FormattingParameters.TemplateForManagers `
             -FormattingParameters $FormattingParameters `
             -ConfigurationParameters $ConfigurationParameters `
-            -AddAfter $EmailReportBranding
+            -Image $EmailReportBranding
 
         # preparing manager lists
         if ($ConfigurationParameters.RemindersSendToManager.LimitScope.Groups) {
