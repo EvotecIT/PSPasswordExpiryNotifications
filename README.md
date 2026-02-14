@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications"><img src="https://img.shields.io/powershellgallery/v/PSPasswordExpiryNotifications.svg"></a>
-  <a href="https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications"><img src="https://img.shields.io/powershellgallery/vpre/PSPasswordExpiryNotifications.svg?label=powershell%20gallery%20preview&colorB=yellow"></a>
+  <a href="https://www.powershellgallery.com/packages/PSPasswordExpiryNotifications"><img src="https://img.shields.io/powershellgallery/v/PSPasswordExpiryNotifications.svg?label=powershell%20gallery%20preview&colorB=yellow&include_prereleases"></a>
   <a href="https://github.com/EvotecIT/PSPasswordExpiryNotifications"><img src="https://img.shields.io/github/license/EvotecIT/PSPasswordExpiryNotifications.svg"></a>
 </p>
 
